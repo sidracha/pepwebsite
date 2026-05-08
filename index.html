@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Peptly — Track your peptide protocols, on your terms</title>
+<meta name="description" content="A clean, private peptide tracker for iPhone. Log doses, track measurements, and stay on schedule — without the spreadsheet." />
+<style>
+  :root {
+    --bg: #fafaf2;
+    --surface: #ffffff;
+    --surface-alt: #f3f4f8;
+    --border: #e4e7ec;
+    --text: #0f172a;
+    --text-dim: #64748b;
+    --text-faint: #94a3b8;
+    --accent: #3b82f6;
+    --accent-alt: #7db7e8;
+    --warn: #d97706;
+    --danger: #dc2626;
+    --on-accent: #ffffff;
+    --flame-bg: #3a2810;
+    --flame-fg: #fde68a;
+    --flame: #f59e0b;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .container { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+
+  /* ----- Nav ----- */
+  nav {
+    padding: 20px 0;
+    border-bottom: 1px solid var(--border);
+    background: rgba(250, 250, 242, 0.85);
+    backdrop-filter: saturate(180%) blur(10px);
+    position: sticky; top: 0; z-index: 10;
+  }
+  .nav-inner { display: flex; align-items: center; justify-content: space-between; }
+  .logo {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 800; font-size: 20px; letter-spacing: -0.5px;
+  }
+  .logo-mark {
+    width: 32px; height: 32px; border-radius: 9px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-alt));
+    display: grid; place-items: center; color: white; font-size: 18px;
+  }
+  .nav-links a {
+    color: var(--text-dim); text-decoration: none; margin-left: 24px;
+    font-size: 14px; font-weight: 500;
+  }
+  .nav-links a:hover { color: var(--text); }
+
+  /* ----- Hero ----- */
+  .hero {
+    padding: 88px 0 64px;
+    display: grid; grid-template-columns: 1.1fr 1fr; gap: 56px; align-items: center;
+  }
+  .eyebrow {
+    color: var(--accent); font-weight: 700; font-size: 13px;
+    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px;
+  }
+  h1 {
+    font-size: 60px; line-height: 1.05; letter-spacing: -2px;
+    font-weight: 800; margin-bottom: 20px;
+  }
+  h1 em { font-style: normal; color: var(--accent); }
+  .lead {
+    font-size: 18px; color: var(--text-dim); max-width: 480px; margin-bottom: 32px;
+  }
+  .cta-row { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+  .btn-appstore {
+    display: inline-flex; align-items: center; gap: 12px;
+    padding: 14px 22px;
+    background: var(--text); color: white;
+    border-radius: 12px; text-decoration: none;
+    font-weight: 600;
+    transition: transform 0.15s ease;
+  }
+  .btn-appstore:hover { transform: translateY(-1px); }
+  .btn-appstore .apple { font-size: 28px; line-height: 1; }
+  .btn-appstore .small { font-size: 11px; opacity: 0.7; line-height: 1.2; }
+  .btn-appstore .big { font-size: 18px; font-weight: 700; line-height: 1.2; }
+  .btn-secondary {
+    color: var(--text); text-decoration: none;
+    font-weight: 600; padding: 14px 22px;
+    border: 1px solid var(--border); border-radius: 12px;
+    background: var(--surface);
+  }
+  .privacy-note {
+    margin-top: 18px; font-size: 13px; color: var(--text-faint);
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  /* ----- Phone mockup ----- */
+  .phone-stage { position: relative; display: flex; justify-content: center; }
+  .phone {
+    width: 320px; aspect-ratio: 9 / 19.5;
+    background: var(--bg);
+    border: 12px solid #1c1d22;
+    border-radius: 48px;
+    overflow: hidden;
+    box-shadow:
+      0 30px 60px -20px rgba(15, 23, 42, 0.4),
+      0 0 0 1px rgba(15, 23, 42, 0.08);
+    position: relative;
+  }
+  .phone::before {
+    content: '';
+    position: absolute; top: 8px; left: 50%;
+    transform: translateX(-50%);
+    width: 100px; height: 28px;
+    background: #1c1d22; border-radius: 16px;
+    z-index: 5;
+  }
+  .phone-screen {
+    height: 100%; padding: 56px 16px 16px; overflow: hidden;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+
+  /* ----- App-internal styling ----- */
+  .app-header { display: flex; align-items: center; gap: 12px; }
+  .pepty-mascot {
+    width: 48px; height: 48px; border-radius: 50%;
+    background: linear-gradient(135deg, #3b82f6, #7db7e8);
+    display: grid; place-items: center; font-size: 24px;
+  }
+  .header-text .small { color: var(--text-dim); font-size: 11px; }
+  .header-text .big {
+    font-size: 24px; font-weight: 800; letter-spacing: -1px; margin-top: 2px;
+  }
+
+  .streak-card {
+    background: var(--flame-bg);
+    border: 1px solid #f59e0b33;
+    border-radius: 14px;
+    padding: 14px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .flame-circle {
+    width: 48px; height: 48px; border-radius: 50%;
+    background: #f59e0b22;
+    display: grid; place-items: center; font-size: 24px;
+  }
+  .streak-text .num { font-size: 28px; font-weight: 800; color: var(--flame-fg); letter-spacing: -1px; }
+  .streak-text .num span { font-size: 13px; font-weight: 600; opacity: 0.9; margin-left: 4px; }
+  .streak-text .sub { font-size: 11px; font-weight: 600; color: var(--flame-fg); opacity: 0.75; margin-top: 2px; }
+
+  .log-cta {
+    background: var(--accent); border-radius: 14px; padding: 16px;
+    display: flex; align-items: center; gap: 12px; color: white;
+  }
+  .log-cta .ico { font-size: 24px; }
+  .log-cta .title { font-weight: 700; font-size: 15px; }
+  .log-cta .sub { font-size: 12px; opacity: 0.85; margin-top: 1px; }
+
+  .tile-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .tile {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 12px 6px; text-align: center;
+  }
+  .tile .ico { font-size: 18px; }
+  .tile .label { font-size: 10px; color: var(--text-dim); margin-top: 4px; font-weight: 600; }
+
+  .section-label {
+    font-size: 10px; color: var(--text-faint); font-weight: 700;
+    letter-spacing: 0.6px; text-transform: uppercase; margin-bottom: 6px;
+  }
+  .upcoming-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 12px;
+  }
+  .upcoming-row { display: flex; align-items: center; gap: 10px; }
+  .pep-dot { width: 8px; height: 36px; border-radius: 4px; background: var(--accent); }
+  .pep-name { font-weight: 700; font-size: 13px; }
+  .pep-meta { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+  .pep-actions { display: flex; gap: 6px; margin-top: 10px; }
+  .pep-pill {
+    flex: 1; text-align: center; padding: 8px;
+    border-radius: 8px; font-size: 11px; font-weight: 700;
+  }
+  .pep-took { background: var(--accent); color: white; }
+  .pep-skip { background: var(--surface-alt); color: var(--text-dim); border: 1px solid var(--border); }
+
+  /* ----- Sections ----- */
+  section.features {
+    padding: 96px 0; background: var(--surface);
+    border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+  }
+  .section-head { text-align: center; margin-bottom: 56px; }
+  .section-head h2 {
+    font-size: 40px; letter-spacing: -1.4px; font-weight: 800; margin-bottom: 12px;
+  }
+  .section-head p { color: var(--text-dim); font-size: 17px; max-width: 540px; margin: 0 auto; }
+
+  .feature-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+  }
+  .feature-card {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 16px; padding: 24px;
+  }
+  .feature-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: linear-gradient(135deg, #3b82f6, #7db7e8);
+    display: grid; place-items: center; color: white; font-size: 18px;
+    margin-bottom: 16px;
+  }
+  .feature-card h3 { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+  .feature-card p { font-size: 14px; color: var(--text-dim); }
+
+  /* ----- Screens row ----- */
+  section.screens { padding: 96px 0; }
+  .screens-row {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px;
+    align-items: start;
+  }
+  .mini-phone {
+    width: 100%; max-width: 260px; aspect-ratio: 9/19.5; margin: 0 auto 16px;
+    border: 10px solid #1c1d22; border-radius: 38px; background: var(--bg);
+    padding: 44px 12px 12px; overflow: hidden;
+    box-shadow: 0 20px 40px -16px rgba(15, 23, 42, 0.3);
+    position: relative;
+  }
+  .mini-phone::before {
+    content: ''; position: absolute; top: 6px; left: 50%;
+    transform: translateX(-50%); width: 80px; height: 22px;
+    background: #1c1d22; border-radius: 12px;
+  }
+
+  .screen-caption {
+    text-align: center;
+  }
+  .screen-caption h4 { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+  .screen-caption p { font-size: 13px; color: var(--text-dim); }
+
+  /* Calendar mockup */
+  .cal-grid {
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 12px;
+  }
+  .cal-day {
+    aspect-ratio: 1; display: grid; place-items: center;
+    font-size: 11px; color: var(--text-dim); border-radius: 6px;
+  }
+  .cal-day.has-dose { background: var(--accent); color: white; font-weight: 700; }
+  .cal-day.skipped { background: #fee2e2; color: var(--danger); }
+  .cal-day.today { border: 1.5px solid var(--text); font-weight: 700; color: var(--text); }
+  .cal-header {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 10px;
+    text-align: center; font-weight: 700; font-size: 13px;
+  }
+
+  /* Peptide library mockup */
+  .pep-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 10px; margin-bottom: 8px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .pep-tag {
+    background: var(--surface-alt); color: var(--text-dim);
+    font-size: 9px; font-weight: 700; padding: 3px 7px; border-radius: 100px;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .pep-card .name { font-size: 12px; font-weight: 700; }
+
+  /* Progress chart mockup */
+  .chart-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 12px;
+  }
+  .chart-title { font-size: 11px; font-weight: 700; color: var(--text-dim); margin-bottom: 8px; }
+  .chart-num { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+  .chart-delta { color: #10b981; font-size: 11px; font-weight: 600; }
+  .chart-svg { margin-top: 8px; width: 100%; height: 70px; }
+
+  /* ----- Pricing ----- */
+  section.pricing {
+    padding: 96px 0; background: var(--surface);
+    border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+  }
+  .price-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; max-width: 720px; margin: 0 auto;
+  }
+  .price-card {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 16px; padding: 28px;
+  }
+  .price-card.featured {
+    border: 2px solid var(--accent);
+    position: relative;
+  }
+  .price-card.featured::before {
+    content: 'BEST VALUE';
+    position: absolute; top: -10px; right: 16px;
+    background: var(--accent); color: white;
+    font-size: 10px; font-weight: 800; padding: 4px 8px;
+    border-radius: 6px; letter-spacing: 0.5px;
+  }
+  .price-card h3 { font-size: 18px; margin-bottom: 6px; }
+  .price-tag { font-size: 36px; font-weight: 800; letter-spacing: -1px; }
+  .price-tag span { font-size: 14px; color: var(--text-dim); font-weight: 500; }
+  .price-sub { font-size: 13px; color: var(--text-dim); margin-top: 4px; }
+  .price-features {
+    list-style: none; margin-top: 18px;
+  }
+  .price-features li {
+    font-size: 14px; padding: 6px 0;
+    display: flex; align-items: center; gap: 8px;
+    color: var(--text-dim);
+  }
+  .price-features li::before {
+    content: '✓'; color: var(--accent); font-weight: 700;
+  }
+
+  /* ----- Footer ----- */
+  footer {
+    padding: 48px 0; text-align: center; color: var(--text-faint); font-size: 13px;
+  }
+  footer a { color: var(--text-dim); text-decoration: none; margin: 0 12px; }
+  footer a:hover { color: var(--text); }
+
+  @media (max-width: 880px) {
+    .hero { grid-template-columns: 1fr; padding: 64px 0 32px; }
+    h1 { font-size: 44px; }
+    .feature-grid { grid-template-columns: 1fr; }
+    .screens-row { grid-template-columns: 1fr; }
+    .price-grid { grid-template-columns: 1fr; }
+    .nav-links { display: none; }
+  }
+
+  /* ───────── Animations ───────── */
+
+  /* Hero ambient gradient blob behind the headline */
+  .hero { position: relative; overflow: visible; }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: 5%; left: -10%;
+    width: 520px; height: 520px;
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.18), transparent 60%);
+    filter: blur(40px);
+    z-index: -1;
+    animation: blobDrift 14s ease-in-out infinite alternate;
+    pointer-events: none;
+  }
+  @keyframes blobDrift {
+    0%   { transform: translate(0, 0) scale(1); }
+    50%  { transform: translate(60px, 30px) scale(1.05); }
+    100% { transform: translate(-30px, 50px) scale(0.95); }
+  }
+
+  /* On-load fade-up for hero content */
+  .hero > div:first-child > * {
+    opacity: 0; transform: translateY(20px);
+    animation: fadeUp 0.8s ease forwards;
+  }
+  .hero .eyebrow      { animation-delay: 0.05s; }
+  .hero h1            { animation-delay: 0.15s; }
+  .hero .lead         { animation-delay: 0.30s; }
+  .hero .cta-row      { animation-delay: 0.45s; }
+  .hero .privacy-note { animation-delay: 0.60s; }
+
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Phone gently floats */
+  .phone-stage {
+    animation: floatIn 1s 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+  }
+  .phone {
+    animation: phoneFloat 6s ease-in-out infinite;
+  }
+  @keyframes floatIn {
+    from { opacity: 0; transform: translateY(40px) scale(0.96); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @keyframes phoneFloat {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-10px); }
+  }
+
+  /* Flame flicker */
+  .flame-circle {
+    animation: flicker 2.4s ease-in-out infinite;
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0);
+  }
+  @keyframes flicker {
+    0%, 100% {
+      transform: scale(1);
+      box-shadow: 0 0 18px 0 rgba(245, 158, 11, 0.5);
+    }
+    50% {
+      transform: scale(1.06);
+      box-shadow: 0 0 26px 6px rgba(245, 158, 11, 0.6);
+    }
+  }
+
+  /* Streak number "wakes up" — pulse on hero load */
+  .streak-text .num {
+    background: linear-gradient(90deg, #fde68a, #fb923c, #fde68a);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 4s linear infinite;
+  }
+  .streak-text .num span {
+    -webkit-text-fill-color: var(--flame-fg);
+    background: none;
+  }
+  @keyframes shimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* App Store button shine */
+  .btn-appstore { position: relative; overflow: hidden; }
+  .btn-appstore::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(
+      120deg,
+      transparent 30%,
+      rgba(255, 255, 255, 0.18) 50%,
+      transparent 70%
+    );
+    transform: translateX(-100%);
+    transition: transform 0.7s ease;
+  }
+  .btn-appstore:hover::after { transform: translateX(100%); }
+
+  /* Reveal-on-scroll: hidden until JS adds .in */
+  .reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition:
+      opacity 0.8s cubic-bezier(0.2, 0.8, 0.2, 1),
+      transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .reveal.in { opacity: 1; transform: translateY(0); }
+  .reveal.delay-1 { transition-delay: 0.08s; }
+  .reveal.delay-2 { transition-delay: 0.16s; }
+  .reveal.delay-3 { transition-delay: 0.24s; }
+  .reveal.delay-4 { transition-delay: 0.32s; }
+  .reveal.delay-5 { transition-delay: 0.40s; }
+
+  /* Feature card hover lift */
+  .feature-card {
+    transition:
+      transform 0.25s ease,
+      border-color 0.25s ease,
+      box-shadow 0.25s ease;
+  }
+  .feature-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(59, 130, 246, 0.4);
+    box-shadow: 0 18px 30px -16px rgba(15, 23, 42, 0.12);
+  }
+  .feature-icon {
+    transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .feature-card:hover .feature-icon {
+    transform: rotate(-8deg) scale(1.08);
+  }
+
+  /* Mini phones: tilt on hover */
+  .mini-phone {
+    transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .mini-phone:hover {
+    transform: translateY(-6px) rotate(-1deg);
+  }
+
+  /* Chart line draw — only animates once revealed */
+  .chart-svg polyline {
+    stroke-dasharray: 600;
+    stroke-dashoffset: 600;
+    transition: stroke-dashoffset 1.6s cubic-bezier(0.2, 0.8, 0.2, 1) 0.2s;
+  }
+  .reveal.in .chart-svg polyline {
+    stroke-dashoffset: 0;
+  }
+
+  /* Calendar dots fade in one by one once visible */
+  .cal-grid .cal-day {
+    opacity: 0;
+    animation: dayPop 0.5s ease forwards;
+    animation-play-state: paused;
+  }
+  .reveal.in .cal-grid .cal-day { animation-play-state: running; }
+  @keyframes dayPop {
+    from { opacity: 0; transform: scale(0.8); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+
+  /* Pricing featured tag wiggles to pull eyes */
+  .price-card.featured::before {
+    animation: tagBob 3s ease-in-out infinite;
+  }
+  @keyframes tagBob {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-3px); }
+  }
+
+  /* Reduced motion: kill everything that moves */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation: none !important;
+      transition: none !important;
+    }
+    .reveal { opacity: 1; transform: none; }
+    .chart-svg polyline { stroke-dashoffset: 0 !important; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="container nav-inner">
+    <div class="logo">
+      <div class="logo-mark">P</div>
+      Peptly
+    </div>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#screens">Screens</a>
+      <a href="#pricing">Pricing</a>
+      <a href="/privacy">Privacy</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero container">
+  <div>
+    <div class="eyebrow">Personal peptide log</div>
+    <h1>Track your peptide protocols, <em>without the spreadsheet</em>.</h1>
+    <p class="lead">
+      Log doses in two taps. See your streak, your trends, your wellbeing — all in one private app that stays on your phone.
+    </p>
+    <div class="cta-row">
+      <a class="btn-appstore" href="#">
+        <span class="apple"></span>
+        <span>
+          <span class="small">Download on the</span><br />
+          <span class="big">App Store</span>
+        </span>
+      </a>
+      <a class="btn-secondary" href="#features">See features</a>
+    </div>
+    <div class="privacy-note">
+      🔒 Your data stays on your device. No accounts, no servers, no analytics.
+    </div>
+  </div>
+
+  <!-- Phone mockup: Today screen -->
+  <div class="phone-stage">
+    <div class="phone">
+      <div class="phone-screen">
+        <div class="app-header">
+          <div class="pepty-mascot">👋</div>
+          <div class="header-text">
+            <div class="small">Tuesday, May 7</div>
+            <div class="big">Mornin'</div>
+          </div>
+        </div>
+
+        <div class="streak-card">
+          <div class="flame-circle">🔥</div>
+          <div class="streak-text">
+            <div class="num">12<span>days</span></div>
+            <div class="sub">Locked in · 0 missed</div>
+          </div>
+        </div>
+
+        <div class="log-cta">
+          <div class="ico">＋</div>
+          <div>
+            <div class="title">Log an injection</div>
+            <div class="sub">Tap the second you take it</div>
+          </div>
+        </div>
+
+        <div class="tile-row">
+          <div class="tile"><div class="ico">🧮</div><div class="label">Calculator</div></div>
+          <div class="tile"><div class="ico">💊</div><div class="label">My Vials</div></div>
+          <div class="tile"><div class="ico">📋</div><div class="label">Protocols</div></div>
+        </div>
+
+        <div>
+          <div class="section-label">Today</div>
+          <div class="upcoming-card">
+            <div class="upcoming-row">
+              <div class="pep-dot" style="background: #10b981"></div>
+              <div style="flex:1">
+                <div class="pep-name">Tirzepatide</div>
+                <div class="pep-meta">5 mg · 9:00 AM</div>
+              </div>
+            </div>
+            <div class="pep-actions">
+              <div class="pep-pill pep-took">I took it</div>
+              <div class="pep-pill pep-skip">Skip</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="container">
+    <div class="section-head reveal">
+      <h2>Built for the way you actually log doses</h2>
+      <p>One tap to log. Reminders that don't get lost. A streak that proves you showed up.</p>
+    </div>
+
+    <div class="feature-grid">
+      <div class="feature-card reveal">
+        <div class="feature-icon">🔥</div>
+        <h3>Streaks that mean something</h3>
+        <p>Don't break the chain. Your streak counts every day you didn't miss a dose. Light yellow at 1, hot red at 90+.</p>
+      </div>
+
+      <div class="feature-card reveal delay-1">
+        <div class="feature-icon">🧮</div>
+        <h3>Built-in dose calculator</h3>
+        <p>"5 mg vial, 2 mL BAC, 250 mcg dose — how many units?" Peptly figures it out in plain English.</p>
+      </div>
+
+      <div class="feature-card reveal delay-2">
+        <div class="feature-icon">📈</div>
+        <h3>Progress that's not just numbers</h3>
+        <p>Weight, body fat, energy, focus, sleep, mood. See what's actually changing — and when it started.</p>
+      </div>
+
+      <div class="feature-card reveal">
+        <div class="feature-icon">🔔</div>
+        <h3>Reminders that survive your phone</h3>
+        <p>Local notifications fire even when you're offline. Tap one, jump straight to that protocol.</p>
+      </div>
+
+      <div class="feature-card reveal delay-1">
+        <div class="feature-icon">🍎</div>
+        <h3>Apple Health, two-way</h3>
+        <p>Pull your weight from Health automatically. Push your measurements back so it stays in sync.</p>
+      </div>
+
+      <div class="feature-card reveal delay-2">
+        <div class="feature-icon">🔒</div>
+        <h3>On-device, always</h3>
+        <p>No accounts. No servers. No analytics. Your log lives on your phone — and only your phone.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SCREENS -->
+<section class="screens" id="screens">
+  <div class="container">
+    <div class="section-head reveal">
+      <h2>See it in action</h2>
+      <p>Three screens you'll actually live in.</p>
+    </div>
+
+    <div class="screens-row">
+      <!-- Calendar -->
+      <div class="reveal">
+        <div class="mini-phone">
+          <div class="cal-header">May 2026</div>
+          <div class="cal-grid">
+            <div class="cal-day">S</div><div class="cal-day">M</div><div class="cal-day">T</div>
+            <div class="cal-day">W</div><div class="cal-day">T</div><div class="cal-day">F</div><div class="cal-day">S</div>
+            <div class="cal-day">26</div><div class="cal-day">27</div><div class="cal-day has-dose">28</div>
+            <div class="cal-day">29</div><div class="cal-day has-dose">30</div><div class="cal-day">1</div><div class="cal-day">2</div>
+            <div class="cal-day has-dose">3</div><div class="cal-day">4</div><div class="cal-day has-dose">5</div>
+            <div class="cal-day">6</div><div class="cal-day today">7</div><div class="cal-day">8</div><div class="cal-day">9</div>
+            <div class="cal-day">10</div><div class="cal-day has-dose">11</div><div class="cal-day">12</div>
+            <div class="cal-day skipped">13</div><div class="cal-day">14</div><div class="cal-day">15</div><div class="cal-day">16</div>
+          </div>
+        </div>
+        <div class="screen-caption">
+          <h4>Calendar</h4>
+          <p>Every dose, log, and side effect — in one view.</p>
+        </div>
+      </div>
+
+      <!-- Peptide library -->
+      <div class="reveal delay-2">
+        <div class="mini-phone">
+          <div class="section-label" style="margin-bottom: 8px">Most popular</div>
+          <div class="pep-card">
+            <div class="pep-dot" style="background:#10b981; width: 6px; height: 32px"></div>
+            <div style="flex:1">
+              <div class="name">Tirzepatide</div>
+              <div class="pep-meta">GLP-1 / GIP · weekly</div>
+            </div>
+            <div class="pep-tag">Weight</div>
+          </div>
+          <div class="pep-card">
+            <div class="pep-dot" style="background:#f97316; width: 6px; height: 32px"></div>
+            <div style="flex:1">
+              <div class="name">BPC-157</div>
+              <div class="pep-meta">Research · twice daily</div>
+            </div>
+            <div class="pep-tag">Recovery</div>
+          </div>
+          <div class="pep-card">
+            <div class="pep-dot" style="background:#a78bfa; width: 6px; height: 32px"></div>
+            <div style="flex:1">
+              <div class="name">GHK-Cu</div>
+              <div class="pep-meta">Research · daily</div>
+            </div>
+            <div class="pep-tag">Skin</div>
+          </div>
+          <div class="pep-card">
+            <div class="pep-dot" style="background:#f59e0b; width: 6px; height: 32px"></div>
+            <div style="flex:1">
+              <div class="name">CJC-1295</div>
+              <div class="pep-meta">Research · daily</div>
+            </div>
+            <div class="pep-tag">GH</div>
+          </div>
+          <div class="pep-card">
+            <div class="pep-dot" style="background:#0ea5e9; width: 6px; height: 32px"></div>
+            <div style="flex:1">
+              <div class="name">TB-500</div>
+              <div class="pep-meta">Research · 2x weekly</div>
+            </div>
+            <div class="pep-tag">Recovery</div>
+          </div>
+        </div>
+        <div class="screen-caption">
+          <h4>Peptide library</h4>
+          <p>20+ peptides with reconstitution math built in.</p>
+        </div>
+      </div>
+
+      <!-- Progress -->
+      <div class="reveal delay-4">
+        <div class="mini-phone">
+          <div class="section-label" style="margin-bottom: 8px">Since you started</div>
+          <div class="chart-card">
+            <div class="chart-title">Weight</div>
+            <div style="display:flex; align-items:baseline; gap:6px">
+              <div class="chart-num">187 lb</div>
+              <div class="chart-delta">↓ 9.9</div>
+            </div>
+            <svg class="chart-svg" viewBox="0 0 200 70" preserveAspectRatio="none">
+              <polyline points="0,12 20,16 40,22 60,20 80,30 100,32 120,40 140,42 160,52 180,54 200,60"
+                fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </div>
+          <div class="chart-card" style="margin-top: 8px">
+            <div class="chart-title">Energy (last 7d avg)</div>
+            <div style="display:flex; align-items:baseline; gap:6px">
+              <div class="chart-num">7.4 / 10</div>
+              <div class="chart-delta">↑ 1.2</div>
+            </div>
+            <svg class="chart-svg" viewBox="0 0 200 70" preserveAspectRatio="none">
+              <polyline points="0,50 20,46 40,40 60,38 80,34 100,30 120,28 140,22 160,18 180,16 200,14"
+                fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </div>
+          <div class="chart-card" style="margin-top: 8px">
+            <div class="chart-title">Adherence (this month)</div>
+            <div style="display:flex; align-items:baseline; gap:6px">
+              <div class="chart-num">96%</div>
+              <div class="chart-delta">12 day streak</div>
+            </div>
+          </div>
+        </div>
+        <div class="screen-caption">
+          <h4>Progress</h4>
+          <p>What's actually changing — and when it started.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing" id="pricing">
+  <div class="container">
+    <div class="section-head reveal">
+      <h2>Free is great for one protocol.</h2>
+      <p>Upgrade to Pro when you're running more.</p>
+    </div>
+
+    <div class="price-grid">
+      <div class="price-card reveal">
+        <h3>Free</h3>
+        <div class="price-tag">$0</div>
+        <div class="price-sub">No trial — just use it.</div>
+        <ul class="price-features">
+          <li>One active protocol</li>
+          <li>One vial</li>
+          <li>Full peptide library</li>
+          <li>Reminders + Apple Health</li>
+        </ul>
+      </div>
+
+      <div class="price-card featured reveal delay-2">
+        <h3>Pro</h3>
+        <div class="price-tag">$4.17<span>/mo</span></div>
+        <div class="price-sub">$49.99 billed yearly · or $7.99/mo</div>
+        <ul class="price-features">
+          <li>Unlimited protocols</li>
+          <li>Unlimited vials</li>
+          <li>AI routine builder + insights</li>
+          <li>Custom peptides</li>
+          <li>Export your data</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div style="margin-bottom: 12px">
+      <a href="/privacy">Privacy</a>·
+      <a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/">Terms</a>·
+      <a href="mailto:hello@peptly.ai">Contact</a>
+    </div>
+    Peptly is a personal log — not a doctor. We don't diagnose, prescribe, or recommend doses.<br />
+    Talk to a clinician about anything you put in your body.<br /><br />
+    © 2026 Peptly
+  </div>
+</footer>
+
+<script>
+  // Reveal on scroll. Trigger once, then unobserve so the element doesn't
+  // re-animate as it leaves and re-enters the viewport.
+  const io = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in');
+          io.unobserve(entry.target);
+        }
+      }
+    },
+    { threshold: 0.15, rootMargin: '0px 0px -60px 0px' }
+  );
+  document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+
+  // Stagger calendar day pop-ins after the calendar phone reveals.
+  const calPhone = document.querySelector('.screens-row > .reveal:first-child');
+  if (calPhone) {
+    const days = calPhone.querySelectorAll('.cal-day');
+    const dayObserver = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            days.forEach((d, i) => {
+              d.style.animationDelay = `${i * 18}ms`;
+            });
+            dayObserver.disconnect();
+          }
+        }
+      },
+      { threshold: 0.3 }
+    );
+    dayObserver.observe(calPhone);
+  }
+
+  // Nav drops a subtle shadow once you scroll past the hero.
+  const nav = document.querySelector('nav');
+  const onScroll = () => {
+    if (window.scrollY > 24) {
+      nav.style.boxShadow = '0 4px 20px -10px rgba(15, 23, 42, 0.08)';
+    } else {
+      nav.style.boxShadow = 'none';
+    }
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+</script>
+
+</body>
+</html>
