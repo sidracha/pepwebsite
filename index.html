@@ -3,25 +3,30 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Peptly — Track your peptide protocols, on your terms</title>
-<meta name="description" content="A clean, private peptide tracker for iPhone. Log doses, track measurements, and stay on schedule — without the spreadsheet." />
+<title>Peptly — Track every dose with just a tap</title>
+<meta name="description" content="Meet Peptly, the personal log for peptide protocols. Track every dose, vial, and side effect with reminders, charts, and AI insights." />
 <style>
   :root {
-    --bg: #fafaf2;
+    --bg: #ffffff;
+    --bg-alt: #f0f6ff;
     --surface: #ffffff;
     --surface-alt: #f3f4f8;
-    --border: #e4e7ec;
-    --text: #0f172a;
+    --border: #dde7f5;
+    --text: #0b1530;
     --text-dim: #64748b;
     --text-faint: #94a3b8;
-    --accent: #3b82f6;
-    --accent-alt: #7db7e8;
+    --accent: #2f6fed;
+    --accent-soft: #dbe7ff;
+    --accent-glow: rgba(47, 111, 237, 0.15);
+    --accent-deep: #1d4ed8;
     --warn: #d97706;
     --danger: #dc2626;
     --on-accent: #ffffff;
-    --flame-bg: #3a2810;
+    --flame-bg: #2a1f10;
     --flame-fg: #fde68a;
     --flame: #f59e0b;
+    --nav-bg: #0d1024;
+    --nav-fg: #e8e9ed;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -32,382 +37,230 @@
     color: var(--text);
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
   }
 
-  .container { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+  .container { max-width: 1240px; margin: 0 auto; padding: 0 32px; }
 
-  /* ----- Nav ----- */
+  /* ───────── Nav ───────── */
   nav {
-    padding: 20px 0;
-    border-bottom: 1px solid var(--border);
-    background: rgba(250, 250, 242, 0.85);
-    backdrop-filter: saturate(180%) blur(10px);
-    position: sticky; top: 0; z-index: 10;
+    padding: 24px 0;
+    display: flex; align-items: center;
+    gap: 24px;
   }
-  .nav-inner { display: flex; align-items: center; justify-content: space-between; }
-  .logo {
+  .nav-logo {
     display: flex; align-items: center; gap: 10px;
-    font-weight: 800; font-size: 20px; letter-spacing: -0.5px;
+    font-weight: 800; font-size: 22px; letter-spacing: -0.5px;
+    color: var(--text); text-decoration: none;
+    flex-shrink: 0;
   }
-  .logo-mark {
-    width: 32px; height: 32px; border-radius: 9px;
-    background: linear-gradient(135deg, var(--accent), var(--accent-alt));
-    display: grid; place-items: center; color: white; font-size: 18px;
+  .nav-logo-mark {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--accent), #5191ff);
+    display: grid; place-items: center; color: white;
+    font-size: 18px; font-weight: 800;
+    box-shadow: 0 6px 16px -6px var(--accent-glow);
+  }
+  .nav-links {
+    display: flex; gap: 30px;
+    flex: 1; justify-content: center;
   }
   .nav-links a {
-    color: var(--text-dim); text-decoration: none; margin-left: 24px;
-    font-size: 14px; font-weight: 500;
+    color: var(--text); text-decoration: none;
+    font-size: 15px; font-weight: 500;
+    transition: color 0.15s ease;
   }
-  .nav-links a:hover { color: var(--text); }
+  .nav-links a:hover { color: var(--accent); }
+  .nav-stores {
+    display: flex; gap: 8px;
+    flex-shrink: 0;
+  }
+  .badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 14px;
+    background: var(--text); color: white;
+    border-radius: 10px; text-decoration: none;
+    transition: transform 0.15s ease, box-shadow 0.2s ease;
+  }
+  .badge:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px -8px rgba(15, 23, 42, 0.4);
+  }
+  .badge .ico {
+    width: 22px; height: 22px;
+    display: inline-flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .badge .ico svg { width: 100%; height: 100%; display: block; }
+  .badge .small { font-size: 9px; opacity: 0.78; line-height: 1.1; display: block; }
+  .badge .big { font-size: 15px; font-weight: 700; line-height: 1.1; display: block; }
 
-  /* ----- Hero ----- */
+  /* ───────── Hero ───────── */
   .hero {
-    padding: 88px 0 64px;
-    display: grid; grid-template-columns: 1.1fr 1fr; gap: 56px; align-items: center;
+    padding: 24px 0 80px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+    gap: 56px; align-items: center;
+    position: relative;
   }
-  .eyebrow {
-    color: var(--accent); font-weight: 700; font-size: 13px;
-    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px;
+  .hero-blob {
+    position: absolute; top: -40px; right: -200px;
+    width: 700px; height: 700px;
+    background: radial-gradient(circle, var(--accent-glow), transparent 60%);
+    filter: blur(40px);
+    z-index: -1; pointer-events: none;
   }
+
+  /* Left column */
+  .rating-pill {
+    display: inline-flex; align-items: center; gap: 12px;
+    padding: 8px 16px 8px 8px;
+    background: white; border: 1px solid var(--border);
+    border-radius: 100px;
+    box-shadow: 0 6px 18px -10px rgba(15, 23, 42, 0.15);
+    margin-bottom: 28px;
+    font-size: 14px;
+  }
+  .rating-pill .avatars { display: flex; }
+  .rating-pill .avatar {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 2px solid white;
+    margin-left: -10px;
+    display: grid; place-items: center;
+    color: white; font-weight: 700; font-size: 11px;
+  }
+  .rating-pill .avatar:first-child { margin-left: 0; }
+  .avatar.a1 { background: linear-gradient(135deg, #f59e0b, #fb923c); }
+  .avatar.a2 { background: linear-gradient(135deg, #10b981, #34d399); }
+  .avatar.a3 { background: linear-gradient(135deg, #6366f1, #818cf8); }
+  .rating-pill .star { color: #f59e0b; }
+  .rating-pill strong { color: var(--text); font-weight: 700; }
+
   h1 {
-    font-size: 60px; line-height: 1.05; letter-spacing: -2px;
-    font-weight: 800; margin-bottom: 20px;
+    font-size: clamp(40px, 4.6vw, 64px);
+    font-weight: 800;
+    letter-spacing: -2.2px;
+    line-height: 1.05;
+    color: var(--text);
+    margin-bottom: 22px;
   }
   h1 em { font-style: normal; color: var(--accent); }
+
   .lead {
-    font-size: 18px; color: var(--text-dim); max-width: 480px; margin-bottom: 32px;
-  }
-  .cta-row { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
-  .btn-appstore {
-    display: inline-flex; align-items: center; gap: 12px;
-    padding: 14px 22px;
-    background: var(--text); color: white;
-    border-radius: 12px; text-decoration: none;
-    font-weight: 600;
-    transition: transform 0.15s ease;
-  }
-  .btn-appstore:hover { transform: translateY(-1px); }
-  .btn-appstore .apple { font-size: 28px; line-height: 1; }
-  .btn-appstore .small { font-size: 11px; opacity: 0.7; line-height: 1.2; }
-  .btn-appstore .big { font-size: 18px; font-weight: 700; line-height: 1.2; }
-  .btn-secondary {
-    color: var(--text); text-decoration: none;
-    font-weight: 600; padding: 14px 22px;
-    border: 1px solid var(--border); border-radius: 12px;
-    background: var(--surface);
-  }
-  .privacy-note {
-    margin-top: 18px; font-size: 13px; color: var(--text-faint);
-    display: flex; align-items: center; gap: 6px;
+    font-size: clamp(15px, 1.2vw, 17px);
+    color: var(--text-dim);
+    max-width: 480px;
+    margin-bottom: 32px;
   }
 
-  /* ----- Phone mockup ----- */
-  .phone-stage { position: relative; display: flex; justify-content: center; }
+  .download-row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .download-row .badge { padding: 12px 22px; }
+  .download-row .badge .ico { width: 24px; height: 24px; }
+  .download-row .badge .small { font-size: 10px; }
+  .download-row .badge .big { font-size: 17px; }
+
+  /* ───────── Phone column ───────── */
+  .phone-stage {
+    position: relative;
+    height: 620px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .phone-pair {
+    position: relative;
+    display: flex;
+    width: 540px;
+    height: 100%;
+    align-items: center;
+  }
   .phone {
-    width: 320px; aspect-ratio: 9 / 19.5;
+    width: 250px;
+    aspect-ratio: 9 / 19.5;
     background: var(--bg);
-    border: 12px solid #1c1d22;
-    border-radius: 48px;
+    border: 10px solid #0d1024;
+    border-radius: 42px;
     overflow: hidden;
     box-shadow:
-      0 30px 60px -20px rgba(15, 23, 42, 0.4),
-      0 0 0 1px rgba(15, 23, 42, 0.08);
-    position: relative;
+      0 40px 80px -20px rgba(15, 23, 42, 0.35),
+      0 0 0 1px rgba(15, 23, 42, 0.05);
+    position: absolute;
   }
   .phone::before {
     content: '';
     position: absolute; top: 8px; left: 50%;
     transform: translateX(-50%);
-    width: 100px; height: 28px;
-    background: #1c1d22; border-radius: 16px;
+    width: 86px; height: 24px;
+    background: #0d1024; border-radius: 13px;
     z-index: 5;
   }
   .phone-screen {
-    height: 100%; padding: 56px 16px 16px; overflow: hidden;
-    display: flex; flex-direction: column; gap: 14px;
+    height: 100%; padding: 46px 11px 11px; overflow: hidden;
+    display: flex; flex-direction: column; gap: 10px;
   }
 
-  /* ----- App-internal styling ----- */
-  .app-header { display: flex; align-items: center; gap: 12px; }
-  .pepty-mascot {
-    width: 48px; height: 48px; border-radius: 50%;
-    background: linear-gradient(135deg, #3b82f6, #7db7e8);
-    display: grid; place-items: center; font-size: 24px;
+  /* Front phone (Today) — left, on top */
+  .phone-front {
+    left: 0; top: 50%;
+    transform: translateY(-52%) rotate(-4deg);
+    z-index: 2;
   }
-  .header-text .small { color: var(--text-dim); font-size: 11px; }
+  /* Back phone (Progress) — right, slightly higher */
+  .phone-back {
+    right: 0; top: 50%;
+    transform: translateY(-48%) rotate(4deg);
+    z-index: 1;
+  }
+
+  /* ───────── Annotation callouts ───────── */
+  .callout {
+    position: absolute;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 7px 14px;
+    font-size: 13px; font-weight: 700;
+    color: var(--text);
+    box-shadow: 0 8px 20px -10px rgba(15, 23, 42, 0.2);
+    display: inline-flex; align-items: center; gap: 6px;
+    z-index: 4;
+    white-space: nowrap;
+  }
+  .callout .ico { font-size: 14px; }
+  .callout-streak  { top: 22%; left: -38px; color: #c2410c; }
+  .callout-dose    { top: 66%; left: -28px; }
+  .callout-weight  { top: 18%; right: -36px; color: var(--accent-deep); }
+  .callout-protocols { top: 60%; right: -50px; color: #047857; }
+
+  /* Decorative arrow squiggle between callouts and phones */
+  .squiggle { position: absolute; pointer-events: none; z-index: 3; }
+
+  /* ───────── App-internal styling (used inside phones) ───────── */
+  .app-header { display: flex; align-items: center; gap: 10px; }
+  .pepty-mascot {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), #5191ff);
+    display: grid; place-items: center; font-size: 18px;
+    flex-shrink: 0;
+  }
+  .header-text .small { color: var(--text-dim); font-size: 10px; }
   .header-text .big {
-    font-size: 24px; font-weight: 800; letter-spacing: -1px; margin-top: 2px;
+    font-size: 20px; font-weight: 800; letter-spacing: -0.8px; margin-top: 1px;
   }
 
   .streak-card {
     background: var(--flame-bg);
     border: 1px solid #f59e0b33;
-    border-radius: 14px;
-    padding: 14px;
-    display: flex; align-items: center; gap: 12px;
-  }
-  .flame-circle {
-    width: 48px; height: 48px; border-radius: 50%;
-    background: #f59e0b22;
-    display: grid; place-items: center; font-size: 24px;
-  }
-  .streak-text .num { font-size: 28px; font-weight: 800; color: var(--flame-fg); letter-spacing: -1px; }
-  .streak-text .num span { font-size: 13px; font-weight: 600; opacity: 0.9; margin-left: 4px; }
-  .streak-text .sub { font-size: 11px; font-weight: 600; color: var(--flame-fg); opacity: 0.75; margin-top: 2px; }
-
-  .log-cta {
-    background: var(--accent); border-radius: 14px; padding: 16px;
-    display: flex; align-items: center; gap: 12px; color: white;
-  }
-  .log-cta .ico { font-size: 24px; }
-  .log-cta .title { font-weight: 700; font-size: 15px; }
-  .log-cta .sub { font-size: 12px; opacity: 0.85; margin-top: 1px; }
-
-  .tile-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-  .tile {
-    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
-    padding: 12px 6px; text-align: center;
-  }
-  .tile .ico { font-size: 18px; }
-  .tile .label { font-size: 10px; color: var(--text-dim); margin-top: 4px; font-weight: 600; }
-
-  .section-label {
-    font-size: 10px; color: var(--text-faint); font-weight: 700;
-    letter-spacing: 0.6px; text-transform: uppercase; margin-bottom: 6px;
-  }
-  .upcoming-card {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 12px; padding: 12px;
-  }
-  .upcoming-row { display: flex; align-items: center; gap: 10px; }
-  .pep-dot { width: 8px; height: 36px; border-radius: 4px; background: var(--accent); }
-  .pep-name { font-weight: 700; font-size: 13px; }
-  .pep-meta { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
-  .pep-actions { display: flex; gap: 6px; margin-top: 10px; }
-  .pep-pill {
-    flex: 1; text-align: center; padding: 8px;
-    border-radius: 8px; font-size: 11px; font-weight: 700;
-  }
-  .pep-took { background: var(--accent); color: white; }
-  .pep-skip { background: var(--surface-alt); color: var(--text-dim); border: 1px solid var(--border); }
-
-  /* ----- Sections ----- */
-  section.features {
-    padding: 96px 0; background: var(--surface);
-    border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
-  }
-  .section-head { text-align: center; margin-bottom: 56px; }
-  .section-head h2 {
-    font-size: 40px; letter-spacing: -1.4px; font-weight: 800; margin-bottom: 12px;
-  }
-  .section-head p { color: var(--text-dim); font-size: 17px; max-width: 540px; margin: 0 auto; }
-
-  .feature-grid {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
-  }
-  .feature-card {
-    background: var(--bg); border: 1px solid var(--border);
-    border-radius: 16px; padding: 24px;
-  }
-  .feature-icon {
-    width: 40px; height: 40px; border-radius: 10px;
-    background: linear-gradient(135deg, #3b82f6, #7db7e8);
-    display: grid; place-items: center; color: white; font-size: 18px;
-    margin-bottom: 16px;
-  }
-  .feature-card h3 { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
-  .feature-card p { font-size: 14px; color: var(--text-dim); }
-
-  /* ----- Screens row ----- */
-  section.screens { padding: 96px 0; }
-  .screens-row {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px;
-    align-items: start;
-  }
-  .mini-phone {
-    width: 100%; max-width: 260px; aspect-ratio: 9/19.5; margin: 0 auto 16px;
-    border: 10px solid #1c1d22; border-radius: 38px; background: var(--bg);
-    padding: 44px 12px 12px; overflow: hidden;
-    box-shadow: 0 20px 40px -16px rgba(15, 23, 42, 0.3);
-    position: relative;
-  }
-  .mini-phone::before {
-    content: ''; position: absolute; top: 6px; left: 50%;
-    transform: translateX(-50%); width: 80px; height: 22px;
-    background: #1c1d22; border-radius: 12px;
-  }
-
-  .screen-caption {
-    text-align: center;
-  }
-  .screen-caption h4 { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
-  .screen-caption p { font-size: 13px; color: var(--text-dim); }
-
-  /* Calendar mockup */
-  .cal-grid {
-    display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 12px;
-  }
-  .cal-day {
-    aspect-ratio: 1; display: grid; place-items: center;
-    font-size: 11px; color: var(--text-dim); border-radius: 6px;
-  }
-  .cal-day.has-dose { background: var(--accent); color: white; font-weight: 700; }
-  .cal-day.skipped { background: #fee2e2; color: var(--danger); }
-  .cal-day.today { border: 1.5px solid var(--text); font-weight: 700; color: var(--text); }
-  .cal-header {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 10px; padding: 10px;
-    text-align: center; font-weight: 700; font-size: 13px;
-  }
-
-  /* Peptide library mockup */
-  .pep-card {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 12px; padding: 10px; margin-bottom: 8px;
+    border-radius: 12px;
+    padding: 12px;
     display: flex; align-items: center; gap: 10px;
   }
-  .pep-tag {
-    background: var(--surface-alt); color: var(--text-dim);
-    font-size: 9px; font-weight: 700; padding: 3px 7px; border-radius: 100px;
-    text-transform: uppercase; letter-spacing: 0.5px;
-  }
-  .pep-card .name { font-size: 12px; font-weight: 700; }
-
-  /* Progress chart mockup */
-  .chart-card {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 12px; padding: 12px;
-  }
-  .chart-title { font-size: 11px; font-weight: 700; color: var(--text-dim); margin-bottom: 8px; }
-  .chart-num { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
-  .chart-delta { color: #10b981; font-size: 11px; font-weight: 600; }
-  .chart-svg { margin-top: 8px; width: 100%; height: 70px; }
-
-  /* ----- Pricing ----- */
-  section.pricing {
-    padding: 96px 0; background: var(--surface);
-    border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
-  }
-  .price-grid {
-    display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; max-width: 720px; margin: 0 auto;
-  }
-  .price-card {
-    background: var(--bg); border: 1px solid var(--border);
-    border-radius: 16px; padding: 28px;
-  }
-  .price-card.featured {
-    border: 2px solid var(--accent);
-    position: relative;
-  }
-  .price-card.featured::before {
-    content: 'BEST VALUE';
-    position: absolute; top: -10px; right: 16px;
-    background: var(--accent); color: white;
-    font-size: 10px; font-weight: 800; padding: 4px 8px;
-    border-radius: 6px; letter-spacing: 0.5px;
-  }
-  .price-card h3 { font-size: 18px; margin-bottom: 6px; }
-  .price-tag { font-size: 36px; font-weight: 800; letter-spacing: -1px; }
-  .price-tag span { font-size: 14px; color: var(--text-dim); font-weight: 500; }
-  .price-sub { font-size: 13px; color: var(--text-dim); margin-top: 4px; }
-  .price-features {
-    list-style: none; margin-top: 18px;
-  }
-  .price-features li {
-    font-size: 14px; padding: 6px 0;
-    display: flex; align-items: center; gap: 8px;
-    color: var(--text-dim);
-  }
-  .price-features li::before {
-    content: '✓'; color: var(--accent); font-weight: 700;
-  }
-
-  /* ----- Footer ----- */
-  footer {
-    padding: 48px 0; text-align: center; color: var(--text-faint); font-size: 13px;
-  }
-  footer a { color: var(--text-dim); text-decoration: none; margin: 0 12px; }
-  footer a:hover { color: var(--text); }
-
-  @media (max-width: 880px) {
-    .hero { grid-template-columns: 1fr; padding: 64px 0 32px; }
-    h1 { font-size: 44px; }
-    .feature-grid { grid-template-columns: 1fr; }
-    .screens-row { grid-template-columns: 1fr; }
-    .price-grid { grid-template-columns: 1fr; }
-    .nav-links { display: none; }
-  }
-
-  /* ───────── Animations ───────── */
-
-  /* Hero ambient gradient blob behind the headline */
-  .hero { position: relative; overflow: visible; }
-  .hero::before {
-    content: '';
-    position: absolute;
-    top: 5%; left: -10%;
-    width: 520px; height: 520px;
-    background: radial-gradient(circle, rgba(59, 130, 246, 0.18), transparent 60%);
-    filter: blur(40px);
-    z-index: -1;
-    animation: blobDrift 14s ease-in-out infinite alternate;
-    pointer-events: none;
-  }
-  @keyframes blobDrift {
-    0%   { transform: translate(0, 0) scale(1); }
-    50%  { transform: translate(60px, 30px) scale(1.05); }
-    100% { transform: translate(-30px, 50px) scale(0.95); }
-  }
-
-  /* On-load fade-up for hero content */
-  .hero > div:first-child > * {
-    opacity: 0; transform: translateY(20px);
-    animation: fadeUp 0.8s ease forwards;
-  }
-  .hero .eyebrow      { animation-delay: 0.05s; }
-  .hero h1            { animation-delay: 0.15s; }
-  .hero .lead         { animation-delay: 0.30s; }
-  .hero .cta-row      { animation-delay: 0.45s; }
-  .hero .privacy-note { animation-delay: 0.60s; }
-
-  @keyframes fadeUp {
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  /* Phone gently floats */
-  .phone-stage {
-    animation: floatIn 1s 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
-  }
-  .phone {
-    animation: phoneFloat 6s ease-in-out infinite;
-  }
-  @keyframes floatIn {
-    from { opacity: 0; transform: translateY(40px) scale(0.96); }
-    to   { opacity: 1; transform: translateY(0) scale(1); }
-  }
-  @keyframes phoneFloat {
-    0%, 100% { transform: translateY(0); }
-    50%      { transform: translateY(-10px); }
-  }
-
-  /* Flame flicker */
   .flame-circle {
-    animation: flicker 2.4s ease-in-out infinite;
-    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0);
+    width: 40px; height: 40px; border-radius: 50%;
+    background: #f59e0b22;
+    display: grid; place-items: center; font-size: 20px;
+    flex-shrink: 0;
   }
-  @keyframes flicker {
-    0%, 100% {
-      transform: scale(1);
-      box-shadow: 0 0 18px 0 rgba(245, 158, 11, 0.5);
-    }
-    50% {
-      transform: scale(1.06);
-      box-shadow: 0 0 26px 6px rgba(245, 158, 11, 0.6);
-    }
-  }
-
-  /* Streak number "wakes up" — pulse on hero load */
   .streak-text .num {
+    font-size: 24px; font-weight: 800; letter-spacing: -0.6px; line-height: 1;
     background: linear-gradient(90deg, #fde68a, #fb923c, #fde68a);
     background-size: 200% 100%;
     -webkit-background-clip: text;
@@ -415,435 +268,839 @@
     -webkit-text-fill-color: transparent;
     animation: shimmer 4s linear infinite;
   }
-  .streak-text .num span {
-    -webkit-text-fill-color: var(--flame-fg);
-    background: none;
+  .streak-text .num span { font-size: 11px; font-weight: 600; opacity: 0.9; margin-left: 4px; -webkit-text-fill-color: var(--flame-fg); background: none; }
+  .streak-text .sub { font-size: 10px; font-weight: 600; color: var(--flame-fg); opacity: 0.8; margin-top: 4px; }
+  @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+  .log-cta {
+    background: var(--accent); border-radius: 12px; padding: 13px;
+    display: flex; align-items: center; gap: 10px; color: white;
   }
-  @keyframes shimmer {
-    0%   { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
+  .log-cta .ico { font-size: 22px; }
+  .log-cta .title { font-weight: 700; font-size: 13px; }
+  .log-cta .sub { font-size: 10px; opacity: 0.85; margin-top: 1px; }
+
+  .tile-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .tile {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 10px 4px; text-align: center;
+  }
+  .tile .ico { font-size: 16px; }
+  .tile .label { font-size: 9px; color: var(--text-dim); margin-top: 3px; font-weight: 600; }
+
+  .section-label-mini {
+    font-size: 9px; color: var(--text-faint); font-weight: 700;
+    letter-spacing: 0.6px; text-transform: uppercase; margin-bottom: 5px;
+  }
+  .upcoming-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 10px;
+  }
+  .upcoming-row { display: flex; align-items: center; gap: 9px; }
+  .pep-dot { width: 6px; height: 32px; border-radius: 3px; background: var(--accent); flex-shrink: 0; }
+  .pep-name { font-weight: 700; font-size: 12px; }
+  .pep-meta { font-size: 10px; color: var(--text-dim); margin-top: 1px; }
+  .pep-actions { display: flex; gap: 5px; margin-top: 9px; }
+  .pep-pill {
+    flex: 1; text-align: center; padding: 6px;
+    border-radius: 7px; font-size: 10px; font-weight: 700;
+  }
+  .pep-took { background: var(--accent); color: white; }
+  .pep-skip { background: var(--surface-alt); color: var(--text-dim); border: 1px solid var(--border); }
+
+  /* "Since started" stats */
+  .since-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 11px;
+  }
+  .since-label { font-size: 8px; color: var(--text-faint); font-weight: 700; letter-spacing: 0.5px; }
+  .since-sub { font-size: 10px; color: var(--text-dim); margin-top: 1px; }
+  .since-stats { display: flex; gap: 14px; margin-top: 8px; }
+  .since-stat-label { font-size: 8px; color: var(--text-faint); font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase; }
+  .since-stat-num { font-size: 17px; font-weight: 800; letter-spacing: -0.4px; color: var(--text); margin-top: 2px; }
+  .since-stat-num.down { color: #10b981; }
+  .since-stat-num span { font-size: 9px; color: var(--text-dim); margin-left: 2px; font-weight: 500; }
+
+  /* Mini chart */
+  .chart-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 10px;
+  }
+  .chart-section-label { font-size: 9px; font-weight: 700; color: var(--text); letter-spacing: 0.4px; text-transform: uppercase; margin-bottom: 6px; }
+  .trend-chart { width: 100%; height: 70px; display: block; }
+  .trend-chart .trend-line {
+    stroke-dasharray: 600;
+    stroke-dashoffset: 600;
+    animation: drawLine 2s cubic-bezier(0.2, 0.8, 0.2, 1) 0.6s forwards;
+  }
+  @keyframes drawLine { to { stroke-dashoffset: 0; } }
+
+  /* Vial alert card (Today screen) */
+  .alert-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 10px;
+    display: flex; align-items: center; gap: 9px;
+  }
+  .alert-bar { width: 4px; height: 36px; border-radius: 2px; background: #d97706; flex-shrink: 0; }
+  .alert-name { font-weight: 700; font-size: 12px; }
+  .alert-sub { font-size: 10px; color: var(--text-dim); margin-top: 1px; }
+  .alert-tag {
+    font-size: 9px; font-weight: 800; letter-spacing: 0.5px;
+    padding: 3px 7px; border-radius: 100px;
+    background: #fef3c7; color: #b45309;
   }
 
-  /* App Store button shine */
-  .btn-appstore { position: relative; overflow: hidden; }
-  .btn-appstore::after {
-    content: '';
-    position: absolute; inset: 0;
-    background: linear-gradient(
-      120deg,
-      transparent 30%,
-      rgba(255, 255, 255, 0.18) 50%,
-      transparent 70%
-    );
-    transform: translateX(-100%);
-    transition: transform 0.7s ease;
+  /* ───── Log Injection mockup (back phone) ───── */
+  .log-header {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 4px;
   }
-  .btn-appstore:hover::after { transform: translateX(100%); }
+  .log-back { color: var(--text-dim); font-size: 16px; }
+  .log-title { font-size: 16px; font-weight: 800; letter-spacing: -0.4px; }
+  .log-section-label {
+    font-size: 9px; color: var(--text-faint); font-weight: 700;
+    letter-spacing: 0.6px; text-transform: uppercase;
+    margin-bottom: 5px; margin-top: 2px;
+  }
+  .status-row { display: flex; gap: 4px; }
+  .status-pill {
+    flex: 1; text-align: center;
+    padding: 7px 0; font-size: 10px; font-weight: 700;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface-alt);
+    color: var(--text);
+  }
+  .status-pill.selected {
+    background: var(--accent); color: white; border-color: var(--accent);
+  }
+  .when-row { display: flex; gap: 6px; }
+  .when-card {
+    flex: 1;
+    background: var(--surface-alt); border: 1px solid var(--border);
+    border-radius: 8px; padding: 7px 9px;
+  }
+  .when-label { font-size: 8px; color: var(--text-dim); font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase; }
+  .when-val { font-size: 11px; font-weight: 700; color: var(--text); margin-top: 2px; }
+  .peptide-pills { display: flex; flex-wrap: wrap; gap: 4px; }
+  .pill-mini {
+    padding: 5px 9px; border-radius: 100px;
+    border: 1px solid var(--border);
+    background: var(--surface-alt);
+    font-size: 10px; font-weight: 600; color: var(--text);
+  }
+  .pill-mini.selected { background: var(--accent); color: white; border-color: var(--accent); }
+  .vial-pick {
+    background: var(--surface-alt); border: 1px solid var(--accent);
+    border-radius: 8px; padding: 8px 10px;
+  }
+  .vial-pick-row {
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .vial-pick-name { font-size: 11px; font-weight: 700; color: var(--text); }
+  .vial-pick-days { font-size: 9px; font-weight: 700; color: var(--text-dim); }
+  .vial-pick-meta { font-size: 10px; color: var(--text-dim); margin-top: 3px; }
+  .dose-row { display: flex; gap: 6px; align-items: stretch; }
+  .dose-input-card {
+    flex: 1; background: var(--surface-alt); border: 1px solid var(--border);
+    border-radius: 8px; padding: 7px 9px;
+  }
+  .dose-amount-label { font-size: 8px; color: var(--text-dim); font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase; }
+  .dose-amount-val { font-size: 14px; font-weight: 800; color: var(--text); margin-top: 2px; }
+  .unit-toggle {
+    display: flex; gap: 2px;
+    background: var(--surface-alt); border: 1px solid var(--border);
+    border-radius: 8px; padding: 2px;
+  }
+  .unit-toggle .pill-mini {
+    padding: 4px 9px; border: none; background: transparent;
+    border-radius: 6px;
+  }
+  .unit-toggle .pill-mini.selected { background: var(--accent); color: white; }
+  .save-btn {
+    background: var(--accent); color: white;
+    text-align: center; padding: 10px;
+    font-size: 12px; font-weight: 700;
+    border-radius: 10px; margin-top: 4px;
+  }
 
-  /* Reveal-on-scroll: hidden until JS adds .in */
+  /* ───────── Vials section ───────── */
+  .vials-section {
+    background: linear-gradient(180deg, white, var(--bg-alt));
+    padding: 96px 0;
+  }
+  .section-head { text-align: center; margin-bottom: 48px; }
+  .section-head .eyebrow {
+    color: var(--accent); font-weight: 700; font-size: 12px;
+    text-transform: uppercase; letter-spacing: 1.4px; margin-bottom: 12px;
+  }
+  .section-head h2 {
+    font-size: clamp(32px, 4vw, 48px); letter-spacing: -1.6px;
+    font-weight: 800; margin-bottom: 14px;
+  }
+  .section-head p { color: var(--text-dim); font-size: 17px; max-width: 580px; margin: 0 auto; }
+
+  .vial-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 18px;
+    max-width: 1080px; margin: 0 auto;
+  }
+  .vial-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 18px 12px 14px;
+    text-align: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+  .vial-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent);
+    box-shadow: 0 18px 30px -16px rgba(15, 23, 42, 0.12);
+  }
+  .vial-svg {
+    width: 38px; height: 64px;
+    display: block; margin: 0 auto 10px;
+  }
+  .vial-name {
+    font-size: 13px; font-weight: 700; color: var(--text);
+    line-height: 1.2;
+  }
+  .vial-cat {
+    font-size: 10px; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    margin-top: 3px; font-weight: 600;
+  }
+
+  /* ───────── Health section ───────── */
+  .health-section {
+    padding: 96px 0;
+    background: var(--bg);
+  }
+  .health-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 32px; max-width: 1080px; margin: 0 auto;
+  }
+  .health-card {
+    background: white; border: 1px solid var(--border);
+    border-radius: 24px; padding: 36px;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    position: relative; overflow: hidden;
+  }
+  .health-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px -20px rgba(15, 23, 42, 0.15);
+  }
+  .health-card .blob {
+    position: absolute; right: -80px; top: -80px;
+    width: 240px; height: 240px;
+    background: radial-gradient(circle, var(--accent-glow), transparent 60%);
+    filter: blur(20px);
+    z-index: 0; pointer-events: none;
+  }
+  .health-card > * { position: relative; z-index: 1; }
+  .health-card .icon {
+    width: 48px; height: 48px; border-radius: 14px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    display: grid; place-items: center;
+    font-size: 22px; margin-bottom: 18px;
+  }
+  .health-card h3 { font-size: 22px; letter-spacing: -0.6px; font-weight: 800; margin-bottom: 8px; }
+  .health-card p { color: var(--text-dim); font-size: 15px; margin-bottom: 22px; }
+
+  /* Inline chart visual for health card */
+  .inline-chart {
+    background: var(--bg-alt);
+    border-radius: 14px;
+    padding: 18px;
+  }
+  .inline-chart .row {
+    display: flex; align-items: baseline; gap: 8px;
+    margin-bottom: 6px;
+  }
+  .inline-chart .label { font-size: 11px; color: var(--text-faint); font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase; }
+  .inline-chart .value { font-size: 28px; font-weight: 800; letter-spacing: -0.8px; }
+  .inline-chart .delta { color: #10b981; font-size: 13px; font-weight: 700; }
+  .inline-chart .delta.down { color: var(--accent); }
+
+  /* Stat strip for health card 2 */
+  .stat-strip {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    background: var(--bg-alt); border-radius: 14px;
+    padding: 16px;
+  }
+  .stat-cell { text-align: center; }
+  .stat-cell + .stat-cell { border-left: 1px solid var(--border); }
+  .stat-cell .num { font-size: 24px; font-weight: 800; letter-spacing: -0.6px; }
+  .stat-cell .num.flame { color: #f97316; }
+  .stat-cell .num.green { color: #10b981; }
+  .stat-cell .lbl { font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; margin-top: 2px; }
+
+  /* ───────── Final CTA ───────── */
+  .final-cta {
+    background: linear-gradient(135deg, var(--accent-deep), var(--accent));
+    color: white;
+    border-radius: 32px;
+    padding: 80px 40px;
+    text-align: center;
+    margin: 0 32px 32px;
+    position: relative; overflow: hidden;
+  }
+  .final-cta::before, .final-cta::after {
+    content: ''; position: absolute; pointer-events: none;
+    background: radial-gradient(circle, rgba(255,255,255,0.15), transparent 60%);
+    filter: blur(40px);
+  }
+  .final-cta::before { width: 360px; height: 360px; top: -100px; left: -80px; }
+  .final-cta::after  { width: 360px; height: 360px; bottom: -100px; right: -80px; }
+  .final-cta > * { position: relative; z-index: 1; }
+  .final-cta h2 {
+    font-size: clamp(32px, 4vw, 48px); letter-spacing: -1.6px;
+    font-weight: 800; margin-bottom: 14px;
+  }
+  .final-cta p { color: rgba(255,255,255,0.85); font-size: 17px; max-width: 520px; margin: 0 auto 30px; }
+  .final-cta .download-row { justify-content: center; }
+  .final-cta .badge { background: white; color: var(--text); }
+
+  /* ───────── Footer ───────── */
+  footer {
+    padding: 40px 0 24px; text-align: center; color: var(--text-faint); font-size: 13px;
+  }
+  footer a { color: var(--text-dim); text-decoration: none; margin: 0 12px; }
+  footer a:hover { color: var(--text); }
+  .disclaimer { margin-top: 18px; font-size: 11px; line-height: 1.6; }
+
+  /* ───────── Reveal-on-scroll ───────── */
   .reveal {
-    opacity: 0;
-    transform: translateY(28px);
+    opacity: 0; transform: translateY(28px);
     transition:
       opacity 0.8s cubic-bezier(0.2, 0.8, 0.2, 1),
       transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
   }
   .reveal.in { opacity: 1; transform: translateY(0); }
-  .reveal.delay-1 { transition-delay: 0.08s; }
-  .reveal.delay-2 { transition-delay: 0.16s; }
-  .reveal.delay-3 { transition-delay: 0.24s; }
-  .reveal.delay-4 { transition-delay: 0.32s; }
-  .reveal.delay-5 { transition-delay: 0.40s; }
+  .reveal.delay-1 { transition-delay: 0.06s; }
+  .reveal.delay-2 { transition-delay: 0.12s; }
+  .reveal.delay-3 { transition-delay: 0.18s; }
+  .reveal.delay-4 { transition-delay: 0.24s; }
 
-  /* Feature card hover lift */
-  .feature-card {
-    transition:
-      transform 0.25s ease,
-      border-color 0.25s ease,
-      box-shadow 0.25s ease;
+  /* ───────── Responsive ───────── */
+  @media (max-width: 1024px) {
+    .hero { grid-template-columns: 1fr; text-align: center; padding-bottom: 32px; }
+    .hero .lead { margin-left: auto; margin-right: auto; }
+    .download-row { justify-content: center; }
+    .rating-pill { margin-left: auto; margin-right: auto; }
+    .phone-stage { height: 540px; }
+    .phone-pair { width: 480px; }
+    .callout-streak  { left: -10px; }
+    .callout-dose    { left: -10px; }
+    .callout-weight  { right: -10px; }
+    .callout-protocols { right: -10px; }
   }
-  .feature-card:hover {
-    transform: translateY(-4px);
-    border-color: rgba(59, 130, 246, 0.4);
-    box-shadow: 0 18px 30px -16px rgba(15, 23, 42, 0.12);
+  @media (max-width: 720px) {
+    .nav-links { display: none; }
+    .nav-stores .badge .small { display: none; }
+    .nav-stores .badge .big { font-size: 13px; }
+    h1 { font-size: 36px; letter-spacing: -1.4px; }
+    .health-grid { grid-template-columns: 1fr; }
+    .phone-stage { height: 460px; }
+    .phone-pair { width: 360px; }
+    .phone { width: 200px; border-width: 8px; }
+    .callout { font-size: 11px; padding: 5px 11px; }
+    .vial-grid { gap: 12px; }
   }
-  .feature-icon {
-    transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
-  }
-  .feature-card:hover .feature-icon {
-    transform: rotate(-8deg) scale(1.08);
-  }
-
-  /* Mini phones: tilt on hover */
-  .mini-phone {
-    transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
-  }
-  .mini-phone:hover {
-    transform: translateY(-6px) rotate(-1deg);
-  }
-
-  /* Chart line draw — only animates once revealed */
-  .chart-svg polyline {
-    stroke-dasharray: 600;
-    stroke-dashoffset: 600;
-    transition: stroke-dashoffset 1.6s cubic-bezier(0.2, 0.8, 0.2, 1) 0.2s;
-  }
-  .reveal.in .chart-svg polyline {
-    stroke-dashoffset: 0;
-  }
-
-  /* Calendar dots fade in one by one once visible */
-  .cal-grid .cal-day {
-    opacity: 0;
-    animation: dayPop 0.5s ease forwards;
-    animation-play-state: paused;
-  }
-  .reveal.in .cal-grid .cal-day { animation-play-state: running; }
-  @keyframes dayPop {
-    from { opacity: 0; transform: scale(0.8); }
-    to   { opacity: 1; transform: scale(1); }
-  }
-
-  /* Pricing featured tag wiggles to pull eyes */
-  .price-card.featured::before {
-    animation: tagBob 3s ease-in-out infinite;
-  }
-  @keyframes tagBob {
-    0%, 100% { transform: translateY(0); }
-    50%      { transform: translateY(-3px); }
-  }
-
-  /* Reduced motion: kill everything that moves */
   @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
-      animation: none !important;
-      transition: none !important;
-    }
+    *, *::before, *::after { animation: none !important; transition: none !important; }
     .reveal { opacity: 1; transform: none; }
-    .chart-svg polyline { stroke-dashoffset: 0 !important; }
+    .trend-chart .trend-line { stroke-dashoffset: 0 !important; }
+    .streak-text .num { -webkit-text-fill-color: #fde68a; background: none; }
   }
 </style>
 </head>
 <body>
 
-<nav>
-  <div class="container nav-inner">
-    <div class="logo">
-      <div class="logo-mark">P</div>
+<div class="container">
+
+  <!-- NAV -->
+  <nav>
+    <a href="#" class="nav-logo">
+      <div class="nav-logo-mark">P</div>
       Peptly
-    </div>
+    </a>
     <div class="nav-links">
-      <a href="#features">Features</a>
-      <a href="#screens">Screens</a>
-      <a href="#pricing">Pricing</a>
+      <a href="#">Home</a>
+      <a href="#vials">Library</a>
+      <a href="#health">Tracking</a>
       <a href="/privacy">Privacy</a>
     </div>
-  </div>
-</nav>
-
-<!-- HERO -->
-<header class="hero container">
-  <div>
-    <div class="eyebrow">Personal peptide log</div>
-    <h1>Track your peptide protocols, <em>without the spreadsheet</em>.</h1>
-    <p class="lead">
-      Log doses in two taps. See your streak, your trends, your wellbeing — all in one private app that stays on your phone.
-    </p>
-    <div class="cta-row">
-      <a class="btn-appstore" href="#">
-        <span class="apple"></span>
+    <div class="nav-stores">
+      <a class="badge" href="#">
+        <span class="ico">
+          <svg viewBox="0 0 384 512" fill="currentColor" aria-hidden="true">
+            <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7-58.5 0-117.6 41.6-117.6 130.8 0 26.4 4.8 53.7 14.5 81.7 12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-89.1-59.3-90zM263.4 105.5c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/>
+          </svg>
+        </span>
         <span>
-          <span class="small">Download on the</span><br />
+          <span class="small">Download on the</span>
           <span class="big">App Store</span>
         </span>
       </a>
-      <a class="btn-secondary" href="#features">See features</a>
+      <a class="badge" href="#">
+        <span class="ico">
+          <svg viewBox="0 0 512 512" aria-hidden="true">
+            <path fill="#34a853" d="M325.3 234.3 104.6 13l280.8 161.2-60.1 60.1z"/>
+            <path fill="#fbbc04" d="m104.6 13 220.7 221.3-60.1 60.1L104.6 13z"/>
+            <path fill="#4285f4" d="M325.3 277.7 104.6 499 385.4 337.8l-60.1-60.1z"/>
+            <path fill="#ea4335" d="M104.6 499 325.3 277.7l60.1 60.1L104.6 499z"/>
+            <path fill="#1976d2" d="M104.6 13 80 38.6V473.4L104.6 499 325.3 277.7 265.2 217.6z"/>
+          </svg>
+        </span>
+        <span>
+          <span class="small">GET IT ON</span>
+          <span class="big">Google Play</span>
+        </span>
+      </a>
     </div>
-    <div class="privacy-note">
-      🔒 Your data stays on your device. No accounts, no servers, no analytics.
-    </div>
-  </div>
+  </nav>
 
-  <!-- Phone mockup: Today screen -->
-  <div class="phone-stage">
-    <div class="phone">
-      <div class="phone-screen">
-        <div class="app-header">
-          <div class="pepty-mascot">👋</div>
-          <div class="header-text">
-            <div class="small">Tuesday, May 7</div>
-            <div class="big">Mornin'</div>
-          </div>
+  <!-- HERO -->
+  <header class="hero">
+    <div class="hero-blob"></div>
+
+    <!-- Left: text -->
+    <div>
+      <div class="rating-pill">
+        <div class="avatars">
+          <div class="avatar a1">M</div>
+          <div class="avatar a2">J</div>
+          <div class="avatar a3">A</div>
         </div>
-
-        <div class="streak-card">
-          <div class="flame-circle">🔥</div>
-          <div class="streak-text">
-            <div class="num">12<span>days</span></div>
-            <div class="sub">Locked in · 0 missed</div>
-          </div>
-        </div>
-
-        <div class="log-cta">
-          <div class="ico">＋</div>
-          <div>
-            <div class="title">Log an injection</div>
-            <div class="sub">Tap the second you take it</div>
-          </div>
-        </div>
-
-        <div class="tile-row">
-          <div class="tile"><div class="ico">🧮</div><div class="label">Calculator</div></div>
-          <div class="tile"><div class="ico">💊</div><div class="label">My Vials</div></div>
-          <div class="tile"><div class="ico">📋</div><div class="label">Protocols</div></div>
-        </div>
-
         <div>
-          <div class="section-label">Today</div>
-          <div class="upcoming-card">
-            <div class="upcoming-row">
-              <div class="pep-dot" style="background: #10b981"></div>
-              <div style="flex:1">
-                <div class="pep-name">Tirzepatide</div>
-                <div class="pep-meta">5 mg · 9:00 AM</div>
+          Loved by protocol runners with <span class="star">★</span> <strong>4.9</strong> rating
+        </div>
+      </div>
+
+      <h1>Meet Peptly<br /><em>Track every dose</em><br />with just a tap.</h1>
+      <p class="lead">
+        Meet Peptly, the AI-powered log for peptide protocols. Snap a vial, scan a batch, or describe your blend
+        and get instant dose math, reminders, and progress tracking.
+      </p>
+      <div class="download-row">
+        <a class="badge" href="#">
+          <span class="ico">
+            <svg viewBox="0 0 384 512" fill="currentColor" aria-hidden="true">
+              <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7-58.5 0-117.6 41.6-117.6 130.8 0 26.4 4.8 53.7 14.5 81.7 12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-89.1-59.3-90zM263.4 105.5c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/>
+            </svg>
+          </span>
+          <span>
+            <span class="small">Download on the</span>
+            <span class="big">App Store</span>
+          </span>
+        </a>
+        <a class="badge" href="#">
+          <span class="ico">
+            <svg viewBox="0 0 512 512" aria-hidden="true">
+              <path fill="#34a853" d="M325.3 234.3 104.6 13l280.8 161.2-60.1 60.1z"/>
+              <path fill="#fbbc04" d="m104.6 13 220.7 221.3-60.1 60.1L104.6 13z"/>
+              <path fill="#4285f4" d="M325.3 277.7 104.6 499 385.4 337.8l-60.1-60.1z"/>
+              <path fill="#ea4335" d="M104.6 499 325.3 277.7l60.1 60.1L104.6 499z"/>
+              <path fill="#1976d2" d="M104.6 13 80 38.6V473.4L104.6 499 325.3 277.7 265.2 217.6z"/>
+            </svg>
+          </span>
+          <span>
+            <span class="small">GET IT ON</span>
+            <span class="big">Google Play</span>
+          </span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Right: phone mockups with annotations -->
+    <div class="phone-stage">
+      <div class="phone-pair">
+
+        <!-- FRONT phone: Today -->
+        <div class="phone phone-front">
+          <div class="phone-screen">
+            <div class="app-header">
+              <div class="pepty-mascot">👋</div>
+              <div class="header-text">
+                <div class="small">Tuesday, May 7</div>
+                <div class="big">Mornin'</div>
               </div>
             </div>
-            <div class="pep-actions">
-              <div class="pep-pill pep-took">I took it</div>
-              <div class="pep-pill pep-skip">Skip</div>
+
+            <div class="streak-card">
+              <div class="flame-circle">🔥</div>
+              <div class="streak-text">
+                <div class="num">12<span>days</span></div>
+                <div class="sub">Locked in · 0 missed</div>
+              </div>
+            </div>
+
+            <div class="log-cta">
+              <div class="ico">＋</div>
+              <div>
+                <div class="title">Log an injection</div>
+                <div class="sub">Tap the second you take it</div>
+              </div>
+            </div>
+
+            <div>
+              <div class="section-label-mini" style="color:#d97706">Today</div>
+              <div class="upcoming-card">
+                <div class="upcoming-row">
+                  <div class="pep-dot" style="background:#10b981"></div>
+                  <div style="flex:1">
+                    <div class="pep-name">Tirzepatide</div>
+                    <div class="pep-meta">5 mg · in 32 min</div>
+                  </div>
+                </div>
+                <div class="pep-actions">
+                  <div class="pep-pill pep-took">I took it</div>
+                  <div class="pep-pill pep-skip">Skip</div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div class="section-label-mini" style="color:#d97706">⚠ Vial alerts</div>
+              <div class="alert-card">
+                <div class="alert-bar"></div>
+                <div style="flex:1">
+                  <div class="alert-name">GHK-Cu · 50 mg</div>
+                  <div class="alert-sub">Expires in 3d · ~2 doses left</div>
+                </div>
+                <div class="alert-tag">LOW</div>
+              </div>
             </div>
           </div>
         </div>
+
+        <!-- BACK phone: Log Injection -->
+        <div class="phone phone-back">
+          <div class="phone-screen">
+            <div class="log-header">
+              <div class="log-back">←</div>
+              <div class="log-title">Log Injection</div>
+            </div>
+
+            <div>
+              <div class="log-section-label">Status</div>
+              <div class="status-row">
+                <div class="status-pill selected">Taken</div>
+                <div class="status-pill">Planned</div>
+                <div class="status-pill">Skipped</div>
+              </div>
+            </div>
+
+            <div>
+              <div class="log-section-label">When</div>
+              <div class="when-row">
+                <div class="when-card">
+                  <div class="when-label">Date</div>
+                  <div class="when-val">Tue, May 7</div>
+                </div>
+                <div class="when-card">
+                  <div class="when-label">Time</div>
+                  <div class="when-val">9:00 AM</div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div class="log-section-label">Peptide</div>
+              <div class="peptide-pills">
+                <div class="pill-mini selected">Tirzepatide</div>
+                <div class="pill-mini">BPC-157</div>
+                <div class="pill-mini">GHK-Cu</div>
+                <div class="pill-mini">Ipamorelin</div>
+              </div>
+            </div>
+
+            <div>
+              <div class="log-section-label">From which vial?</div>
+              <div class="vial-pick">
+                <div class="vial-pick-row">
+                  <div class="vial-pick-name">10 mg vial</div>
+                  <div class="vial-pick-days">14d left</div>
+                </div>
+                <div class="vial-pick-meta">~7.5 mg remaining</div>
+              </div>
+            </div>
+
+            <div>
+              <div class="log-section-label">Dose</div>
+              <div class="dose-row">
+                <div class="dose-input-card">
+                  <div class="dose-amount-label">Amount (mg)</div>
+                  <div class="dose-amount-val">5</div>
+                </div>
+                <div class="unit-toggle">
+                  <div class="pill-mini">mcg</div>
+                  <div class="pill-mini selected">mg</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="save-btn">Save Injection</div>
+          </div>
+        </div>
+
       </div>
     </div>
-  </div>
-</header>
+  </header>
+</div>
 
-<!-- FEATURES -->
-<section class="features" id="features">
+<!-- VIALS SECTION -->
+<section class="vials-section" id="vials">
   <div class="container">
     <div class="section-head reveal">
-      <h2>Built for the way you actually log doses</h2>
-      <p>One tap to log. Reminders that don't get lost. A streak that proves you showed up.</p>
+      <div class="eyebrow">Peptide Library</div>
+      <h2>20+ peptides, ready to log</h2>
+      <p>Every entry comes with reconstitution math, half-life, injection route, and reported side effects — no recommendations, just facts.</p>
     </div>
 
-    <div class="feature-grid">
-      <div class="feature-card reveal">
-        <div class="feature-icon">🔥</div>
-        <h3>Streaks that mean something</h3>
-        <p>Don't break the chain. Your streak counts every day you didn't miss a dose. Light yellow at 1, hot red at 90+.</p>
+    <div class="vial-grid">
+      <!-- Each vial generated inline. Color = peptide tag color from the app. -->
+      <div class="vial-card reveal">
+        <svg class="vial-svg" viewBox="0 0 38 64">
+          <rect x="11" y="0"  width="16" height="6" rx="1.5" fill="#94a3b8"/>
+          <rect x="9"  y="6"  width="20" height="5" rx="1" fill="#cbd5e1"/>
+          <rect x="6"  y="11" width="26" height="48" rx="3" fill="white" stroke="#cbd5e1" stroke-width="1.2"/>
+          <rect x="6"  y="32" width="26" height="27" rx="0" fill="#10b981" opacity="0.85"/>
+          <rect x="6"  y="11" width="26" height="48" rx="3" fill="none" stroke="#cbd5e1" stroke-width="1.2"/>
+        </svg>
+        <div class="vial-name">Tirzepatide</div>
+        <div class="vial-cat">GLP-1 / GIP</div>
       </div>
-
-      <div class="feature-card reveal delay-1">
-        <div class="feature-icon">🧮</div>
-        <h3>Built-in dose calculator</h3>
-        <p>"5 mg vial, 2 mL BAC, 250 mcg dose — how many units?" Peptly figures it out in plain English.</p>
+      <div class="vial-card reveal">
+        <svg class="vial-svg" viewBox="0 0 38 64"><rect x="11" y="0" width="16" height="6" rx="1.5" fill="#94a3b8"/><rect x="9" y="6" width="20" height="5" rx="1" fill="#cbd5e1"/><rect x="6" y="11" width="26" height="48" rx="3" fill="white" stroke="#cbd5e1" stroke-width="1.2"/><rect x="6" y="36" width="26" height="23" fill="#10b981" opacity="0.85"/><rect x="6" y="11" width="26" height="48" rx="3" fill="none" stroke="#cbd5e1" stroke-width="1.2"/></svg>
+        <div class="vial-name">Semaglutide</div>
+        <div class="vial-cat">GLP-1</div>
       </div>
-
-      <div class="feature-card reveal delay-2">
-        <div class="feature-icon">📈</div>
-        <h3>Progress that's not just numbers</h3>
-        <p>Weight, body fat, energy, focus, sleep, mood. See what's actually changing — and when it started.</p>
+      <div class="vial-card reveal delay-1">
+        <svg class="vial-svg" viewBox="0 0 38 64"><rect x="11" y="0" width="16" height="6" rx="1.5" fill="#94a3b8"/><rect x="9" y="6" width="20" height="5" rx="1" fill="#cbd5e1"/><rect x="6" y="11" width="26" height="48" rx="3" fill="white" stroke="#cbd5e1" stroke-width="1.2"/><rect x="6" y="40" width="26" height="19" fill="#f59e0b" opacity="0.85"/><rect x="6" y="11" width="26" height="48" rx="3" fill="none" stroke="#cbd5e1" stroke-width="1.2"/></svg>
+        <div class="vial-name">Tesamorelin</div>
+        <div class="vial-cat">Growth hormone</div>
       </div>
-
-      <div class="feature-card reveal">
-        <div class="feature-icon">🔔</div>
-        <h3>Reminders that survive your phone</h3>
-        <p>Local notifications fire even when you're offline. Tap one, jump straight to that protocol.</p>
+      <div class="vial-card reveal delay-1">
+        <svg class="vial-svg" viewBox="0 0 38 64"><rect x="11" y="0" width="16" height="6" rx="1.5" fill="#94a3b8"/><rect x="9" y="6" width="20" height="5" rx="1" fill="#cbd5e1"/><rect x="6" y="11" width="26" height="48" rx="3" fill="white" stroke="#cbd5e1" stroke-width="1.2"/><rect x="6" y="28" width="26" height="31" fill="#10b981" opacity="0.85"/><rect x="6" y="11" width="26" height="48" rx="3" fill="none" stroke="#cbd5e1" stroke-width="1.2"/></svg>
+        <div class="vial-name">Retatrutide</div>
+        <div class="vial-cat">Triple agonist</div>
       </div>
-
-      <div class="feature-card reveal delay-1">
-        <div class="feature-icon">🍎</div>
-        <h3>Apple Health, two-way</h3>
-        <p>Pull your weight from Health automatically. Push your measurements back so it stays in sync.</p>
+      <div class="vial-card reveal delay-2">
+        <svg class="vial-svg" viewBox="0 0 38 64"><rect x="11" y="0" width="16" height="6" rx="1.5" fill="#94a3b8"/><rect x="9" y="6" width="20" height="5" rx="1" fill="#cbd5e1"/><rect x="6" y="11" width="26" height="48" rx="3" fill="white" stroke="#cbd5e1" stroke-width="1.2"/><rect x="6" y="24" width="26" height="35" fill="#f97316" opacity="0.85"/><rect x="6" y="11" width="26" height="48" rx="3" fill="none" stroke="#cbd5e1" stroke-width="1.2"/></svg>
+        <div class="vial-name">BPC-157</div>
+        <div class="vial-cat">Recovery</div>
       </div>
-
-      <div class="feature-card reveal delay-2">
-        <div class="feature-icon">🔒</div>
-        <h3>On-device, always</h3>
-        <p>No accounts. No servers. No analytics. Your log lives on your phone — and only your phone.</p>
+      <div class="vial-card reveal delay-2">
+        <svg class="vial-svg" viewBox="0 0 38 64"><rect x="11" y="0" width="16" height="6" rx="1.5" fill="#94a3b8"/><rect x="9" y="6" width="20" height="5" rx="1" fill="#cbd5e1"/><rect x="6" y="11" width="26" height="48" rx="3" fill="white" stroke="#cbd5e1" stroke-width="1.2"/><rect x="6" y="32" width="26" height="27" fill="#f97316" opacity="0.85"/><rect x="6" y="11" width="26" height="48" rx="3" fill="none" stroke="#cbd5e1" stroke-width="1.2"/></svg>
+        <div class="vial-name">TB-500</div>
+        <div class="vial-cat">Recovery</div>
+      </div>
+      <div class="vial-card reveal delay-3">
+        <svg class="vial-svg" viewBox="0 0 38 64"><rect x="11" y="0" width="16" height="6" rx="1.5" fill="#94a3b8"/><rect x="9" y="6" width="20" height="5" rx="1" fill="#cbd5e1"/><rect x="6" y="11" width="26" height="48" rx="3" fill="white" stroke="#cbd5e1" stroke-width="1.2"/><rect x="6" y="20" width="26" height="39" fill="#a78bfa" opacity="0.85"/><rect x="6" y="11" width="26" height="48" rx="3" fill="none" stroke="#cbd5e1" stroke-width="1.2"/></svg>
+        <div class="vial-name">GHK-Cu</div>
+        <div class="vial-cat">Skin / Recovery</div>
+      </div>
+      <div class="vial-card reveal delay-3">
+        <svg class="vial-svg" viewBox="0 0 38 64"><rect x="11" y="0" width="16" height="6" rx="1.5" fill="#94a3b8"/><rect x="9" y="6" width="20" height="5" rx="1" fill="#cbd5e1"/><rect x="6" y="11" width="26" height="48" rx="3" fill="white" stroke="#cbd5e1" stroke-width="1.2"/><rect x="6" y="36" width="26" height="23" fill="#f59e0b" opacity="0.85"/><rect x="6" y="11" width="26" height="48" rx="3" fill="none" stroke="#cbd5e1" stroke-width="1.2"/></svg>
+        <div class="vial-name">CJC-1295</div>
+        <div class="vial-cat">Growth hormone</div>
+      </div>
+      <div class="vial-card reveal delay-4">
+        <svg class="vial-svg" viewBox="0 0 38 64"><rect x="11" y="0" width="16" height="6" rx="1.5" fill="#94a3b8"/><rect x="9" y="6" width="20" height="5" rx="1" fill="#cbd5e1"/><rect x="6" y="11" width="26" height="48" rx="3" fill="white" stroke="#cbd5e1" stroke-width="1.2"/><rect x="6" y="34" width="26" height="25" fill="#f59e0b" opacity="0.85"/><rect x="6" y="11" width="26" height="48" rx="3" fill="none" stroke="#cbd5e1" stroke-width="1.2"/></svg>
+        <div class="vial-name">Ipamorelin</div>
+        <div class="vial-cat">Growth hormone</div>
+      </div>
+      <div class="vial-card reveal delay-4">
+        <svg class="vial-svg" viewBox="0 0 38 64"><rect x="11" y="0" width="16" height="6" rx="1.5" fill="#94a3b8"/><rect x="9" y="6" width="20" height="5" rx="1" fill="#cbd5e1"/><rect x="6" y="11" width="26" height="48" rx="3" fill="white" stroke="#cbd5e1" stroke-width="1.2"/><rect x="6" y="38" width="26" height="21" fill="#14b8a6" opacity="0.85"/><rect x="6" y="11" width="26" height="48" rx="3" fill="none" stroke="#cbd5e1" stroke-width="1.2"/></svg>
+        <div class="vial-name">MOTS-c</div>
+        <div class="vial-cat">Longevity</div>
+      </div>
+      <div class="vial-card reveal">
+        <svg class="vial-svg" viewBox="0 0 38 64"><rect x="11" y="0" width="16" height="6" rx="1.5" fill="#94a3b8"/><rect x="9" y="6" width="20" height="5" rx="1" fill="#cbd5e1"/><rect x="6" y="11" width="26" height="48" rx="3" fill="white" stroke="#cbd5e1" stroke-width="1.2"/><rect x="6" y="30" width="26" height="29" fill="#10b981" opacity="0.85"/><rect x="6" y="11" width="26" height="48" rx="3" fill="none" stroke="#cbd5e1" stroke-width="1.2"/></svg>
+        <div class="vial-name">AOD-9604</div>
+        <div class="vial-cat">Weight</div>
+      </div>
+      <div class="vial-card reveal delay-1">
+        <svg class="vial-svg" viewBox="0 0 38 64"><rect x="11" y="0" width="16" height="6" rx="1.5" fill="#94a3b8"/><rect x="9" y="6" width="20" height="5" rx="1" fill="#cbd5e1"/><rect x="6" y="11" width="26" height="48" rx="3" fill="white" stroke="#cbd5e1" stroke-width="1.2"/><rect x="6" y="42" width="26" height="17" fill="#ec4899" opacity="0.85"/><rect x="6" y="11" width="26" height="48" rx="3" fill="none" stroke="#cbd5e1" stroke-width="1.2"/></svg>
+        <div class="vial-name">Semax</div>
+        <div class="vial-cat">Nootropic</div>
+      </div>
+      <div class="vial-card reveal delay-1">
+        <svg class="vial-svg" viewBox="0 0 38 64"><rect x="11" y="0" width="16" height="6" rx="1.5" fill="#94a3b8"/><rect x="9" y="6" width="20" height="5" rx="1" fill="#cbd5e1"/><rect x="6" y="11" width="26" height="48" rx="3" fill="white" stroke="#cbd5e1" stroke-width="1.2"/><rect x="6" y="44" width="26" height="15" fill="#ec4899" opacity="0.85"/><rect x="6" y="11" width="26" height="48" rx="3" fill="none" stroke="#cbd5e1" stroke-width="1.2"/></svg>
+        <div class="vial-name">Selank</div>
+        <div class="vial-cat">Nootropic</div>
+      </div>
+      <div class="vial-card reveal delay-2">
+        <svg class="vial-svg" viewBox="0 0 38 64"><rect x="11" y="0" width="16" height="6" rx="1.5" fill="#94a3b8"/><rect x="9" y="6" width="20" height="5" rx="1" fill="#cbd5e1"/><rect x="6" y="11" width="26" height="48" rx="3" fill="white" stroke="#cbd5e1" stroke-width="1.2"/><rect x="6" y="22" width="26" height="37" fill="#10b981" opacity="0.85"/><rect x="6" y="11" width="26" height="48" rx="3" fill="none" stroke="#cbd5e1" stroke-width="1.2"/></svg>
+        <div class="vial-name">Cagrilintide</div>
+        <div class="vial-cat">Investigational</div>
+      </div>
+      <div class="vial-card reveal delay-2">
+        <svg class="vial-svg" viewBox="0 0 38 64"><rect x="11" y="0" width="16" height="6" rx="1.5" fill="#94a3b8"/><rect x="9" y="6" width="20" height="5" rx="1" fill="#cbd5e1"/><rect x="6" y="11" width="26" height="48" rx="3" fill="white" stroke="#cbd5e1" stroke-width="1.2"/><rect x="6" y="34" width="26" height="25" fill="#a78bfa" opacity="0.85"/><rect x="6" y="11" width="26" height="48" rx="3" fill="none" stroke="#cbd5e1" stroke-width="1.2"/></svg>
+        <div class="vial-name">Melanotan II</div>
+        <div class="vial-cat">Skin</div>
+      </div>
+      <div class="vial-card reveal delay-3">
+        <svg class="vial-svg" viewBox="0 0 38 64"><rect x="11" y="0" width="16" height="6" rx="1.5" fill="#94a3b8"/><rect x="9" y="6" width="20" height="5" rx="1" fill="#cbd5e1"/><rect x="6" y="11" width="26" height="48" rx="3" fill="white" stroke="#cbd5e1" stroke-width="1.2"/><rect x="6" y="40" width="26" height="19" fill="#14b8a6" opacity="0.85"/><rect x="6" y="11" width="26" height="48" rx="3" fill="none" stroke="#cbd5e1" stroke-width="1.2"/></svg>
+        <div class="vial-name">Glutathione</div>
+        <div class="vial-cat">Longevity</div>
+      </div>
+      <div class="vial-card reveal delay-3">
+        <svg class="vial-svg" viewBox="0 0 38 64"><rect x="11" y="0" width="16" height="6" rx="1.5" fill="#94a3b8"/><rect x="9" y="6" width="20" height="5" rx="1" fill="#cbd5e1"/><rect x="6" y="11" width="26" height="48" rx="3" fill="white" stroke="#cbd5e1" stroke-width="1.2"/><rect x="6" y="36" width="26" height="23" fill="#14b8a6" opacity="0.85"/><rect x="6" y="11" width="26" height="48" rx="3" fill="none" stroke="#cbd5e1" stroke-width="1.2"/></svg>
+        <div class="vial-name">NAD+</div>
+        <div class="vial-cat">Longevity</div>
+      </div>
+      <div class="vial-card reveal delay-4">
+        <svg class="vial-svg" viewBox="0 0 38 64"><rect x="11" y="0" width="16" height="6" rx="1.5" fill="#94a3b8"/><rect x="9" y="6" width="20" height="5" rx="1" fill="#cbd5e1"/><rect x="6" y="11" width="26" height="48" rx="3" fill="white" stroke="#cbd5e1" stroke-width="1.2"/><rect x="6" y="42" width="26" height="17" fill="#f97316" opacity="0.85"/><rect x="6" y="11" width="26" height="48" rx="3" fill="none" stroke="#cbd5e1" stroke-width="1.2"/></svg>
+        <div class="vial-name">KPV</div>
+        <div class="vial-cat">Recovery</div>
+      </div>
+      <div class="vial-card reveal delay-4">
+        <svg class="vial-svg" viewBox="0 0 38 64"><rect x="11" y="0" width="16" height="6" rx="1.5" fill="#94a3b8"/><rect x="9" y="6" width="20" height="5" rx="1" fill="#cbd5e1"/><rect x="6" y="11" width="26" height="48" rx="3" fill="white" stroke="#cbd5e1" stroke-width="1.2"/><rect x="6" y="26" width="26" height="33" fill="#10b981" opacity="0.85"/><rect x="6" y="11" width="26" height="48" rx="3" fill="none" stroke="#cbd5e1" stroke-width="1.2"/></svg>
+        <div class="vial-name">Melanotan I</div>
+        <div class="vial-cat">Skin</div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- SCREENS -->
-<section class="screens" id="screens">
+<!-- HEALTH SECTION -->
+<section class="health-section" id="health">
   <div class="container">
     <div class="section-head reveal">
-      <h2>See it in action</h2>
-      <p>Three screens you'll actually live in.</p>
+      <div class="eyebrow">Health Tracking</div>
+      <h2>The metrics that actually matter</h2>
+      <p>Weight, body fat, energy, focus, mood, sleep — pulled from Apple Health or logged in seconds. Peptly turns it into trends.</p>
     </div>
 
-    <div class="screens-row">
-      <!-- Calendar -->
-      <div class="reveal">
-        <div class="mini-phone">
-          <div class="cal-header">May 2026</div>
-          <div class="cal-grid">
-            <div class="cal-day">S</div><div class="cal-day">M</div><div class="cal-day">T</div>
-            <div class="cal-day">W</div><div class="cal-day">T</div><div class="cal-day">F</div><div class="cal-day">S</div>
-            <div class="cal-day">26</div><div class="cal-day">27</div><div class="cal-day has-dose">28</div>
-            <div class="cal-day">29</div><div class="cal-day has-dose">30</div><div class="cal-day">1</div><div class="cal-day">2</div>
-            <div class="cal-day has-dose">3</div><div class="cal-day">4</div><div class="cal-day has-dose">5</div>
-            <div class="cal-day">6</div><div class="cal-day today">7</div><div class="cal-day">8</div><div class="cal-day">9</div>
-            <div class="cal-day">10</div><div class="cal-day has-dose">11</div><div class="cal-day">12</div>
-            <div class="cal-day skipped">13</div><div class="cal-day">14</div><div class="cal-day">15</div><div class="cal-day">16</div>
+    <div class="health-grid">
+      <div class="health-card reveal">
+        <div class="blob"></div>
+        <div class="icon">📊</div>
+        <h3>Weight & body composition</h3>
+        <p>Two-way Apple Health sync. Charts mark exactly when you started each protocol so you can see what changed and when.</p>
+        <div class="inline-chart">
+          <div class="row">
+            <span class="label">Weight (last 30d)</span>
           </div>
-        </div>
-        <div class="screen-caption">
-          <h4>Calendar</h4>
-          <p>Every dose, log, and side effect — in one view.</p>
-        </div>
-      </div>
-
-      <!-- Peptide library -->
-      <div class="reveal delay-2">
-        <div class="mini-phone">
-          <div class="section-label" style="margin-bottom: 8px">Most popular</div>
-          <div class="pep-card">
-            <div class="pep-dot" style="background:#10b981; width: 6px; height: 32px"></div>
-            <div style="flex:1">
-              <div class="name">Tirzepatide</div>
-              <div class="pep-meta">GLP-1 / GIP · weekly</div>
-            </div>
-            <div class="pep-tag">Weight</div>
+          <div class="row">
+            <span class="value">187.0 lb</span>
+            <span class="delta down">↓ 9.9 lb</span>
           </div>
-          <div class="pep-card">
-            <div class="pep-dot" style="background:#f97316; width: 6px; height: 32px"></div>
-            <div style="flex:1">
-              <div class="name">BPC-157</div>
-              <div class="pep-meta">Research · twice daily</div>
-            </div>
-            <div class="pep-tag">Recovery</div>
-          </div>
-          <div class="pep-card">
-            <div class="pep-dot" style="background:#a78bfa; width: 6px; height: 32px"></div>
-            <div style="flex:1">
-              <div class="name">GHK-Cu</div>
-              <div class="pep-meta">Research · daily</div>
-            </div>
-            <div class="pep-tag">Skin</div>
-          </div>
-          <div class="pep-card">
-            <div class="pep-dot" style="background:#f59e0b; width: 6px; height: 32px"></div>
-            <div style="flex:1">
-              <div class="name">CJC-1295</div>
-              <div class="pep-meta">Research · daily</div>
-            </div>
-            <div class="pep-tag">GH</div>
-          </div>
-          <div class="pep-card">
-            <div class="pep-dot" style="background:#0ea5e9; width: 6px; height: 32px"></div>
-            <div style="flex:1">
-              <div class="name">TB-500</div>
-              <div class="pep-meta">Research · 2x weekly</div>
-            </div>
-            <div class="pep-tag">Recovery</div>
-          </div>
-        </div>
-        <div class="screen-caption">
-          <h4>Peptide library</h4>
-          <p>20+ peptides with reconstitution math built in.</p>
+          <svg viewBox="0 0 320 80" style="width:100%; height:80px; margin-top: 6px" preserveAspectRatio="none">
+            <line x1="0" y1="20" x2="320" y2="20" stroke="#dde7f5" stroke-width="0.5" stroke-dasharray="2,3"/>
+            <line x1="0" y1="40" x2="320" y2="40" stroke="#dde7f5" stroke-width="0.5" stroke-dasharray="2,3"/>
+            <line x1="0" y1="60" x2="320" y2="60" stroke="#dde7f5" stroke-width="0.5" stroke-dasharray="2,3"/>
+            <line x1="60" y1="0" x2="60" y2="80" stroke="#10b981" stroke-width="1" stroke-opacity="0.5" stroke-dasharray="3,3"/>
+            <polyline points="0,12 30,16 60,22 90,28 120,32 150,38 180,46 210,54 240,60 270,66 320,72"
+              fill="none" stroke="#2f6fed" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="0" cy="12" r="3" fill="#2f6fed" stroke="white" stroke-width="1.5"/>
+            <circle cx="60" cy="22" r="3" fill="#2f6fed" stroke="white" stroke-width="1.5"/>
+            <circle cx="120" cy="32" r="3" fill="#2f6fed" stroke="white" stroke-width="1.5"/>
+            <circle cx="180" cy="46" r="3" fill="#2f6fed" stroke="white" stroke-width="1.5"/>
+            <circle cx="240" cy="60" r="3" fill="#2f6fed" stroke="white" stroke-width="1.5"/>
+            <circle cx="320" cy="72" r="3" fill="#2f6fed" stroke="white" stroke-width="1.5"/>
+          </svg>
         </div>
       </div>
 
-      <!-- Progress -->
-      <div class="reveal delay-4">
-        <div class="mini-phone">
-          <div class="section-label" style="margin-bottom: 8px">Since you started</div>
-          <div class="chart-card">
-            <div class="chart-title">Weight</div>
-            <div style="display:flex; align-items:baseline; gap:6px">
-              <div class="chart-num">187 lb</div>
-              <div class="chart-delta">↓ 9.9</div>
-            </div>
-            <svg class="chart-svg" viewBox="0 0 200 70" preserveAspectRatio="none">
-              <polyline points="0,12 20,16 40,22 60,20 80,30 100,32 120,40 140,42 160,52 180,54 200,60"
-                fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
+      <div class="health-card reveal delay-1">
+        <div class="blob"></div>
+        <div class="icon">💙</div>
+        <h3>Wellbeing & adherence</h3>
+        <p>Daily mood logs in 5 seconds — energy, focus, mood, sleep, pain. Watch the trends shift after each protocol starts.</p>
+        <div class="stat-strip">
+          <div class="stat-cell">
+            <div class="num flame">🔥 12</div>
+            <div class="lbl">Day streak</div>
           </div>
-          <div class="chart-card" style="margin-top: 8px">
-            <div class="chart-title">Energy (last 7d avg)</div>
-            <div style="display:flex; align-items:baseline; gap:6px">
-              <div class="chart-num">7.4 / 10</div>
-              <div class="chart-delta">↑ 1.2</div>
-            </div>
-            <svg class="chart-svg" viewBox="0 0 200 70" preserveAspectRatio="none">
-              <polyline points="0,50 20,46 40,40 60,38 80,34 100,30 120,28 140,22 160,18 180,16 200,14"
-                fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
+          <div class="stat-cell">
+            <div class="num">96%</div>
+            <div class="lbl">Adherence</div>
           </div>
-          <div class="chart-card" style="margin-top: 8px">
-            <div class="chart-title">Adherence (this month)</div>
-            <div style="display:flex; align-items:baseline; gap:6px">
-              <div class="chart-num">96%</div>
-              <div class="chart-delta">12 day streak</div>
-            </div>
+          <div class="stat-cell">
+            <div class="num green">↑ 1.2</div>
+            <div class="lbl">Energy 7d</div>
           </div>
         </div>
-        <div class="screen-caption">
-          <h4>Progress</h4>
-          <p>What's actually changing — and when it started.</p>
+
+        <div class="inline-chart" style="margin-top: 16px">
+          <div class="row">
+            <span class="label">Wellbeing trend (30d)</span>
+          </div>
+          <svg viewBox="0 0 320 80" style="width:100%; height:80px; margin-top: 6px" preserveAspectRatio="none">
+            <line x1="0" y1="20" x2="320" y2="20" stroke="#dde7f5" stroke-width="0.5" stroke-dasharray="2,3"/>
+            <line x1="0" y1="40" x2="320" y2="40" stroke="#dde7f5" stroke-width="0.5" stroke-dasharray="2,3"/>
+            <line x1="0" y1="60" x2="320" y2="60" stroke="#dde7f5" stroke-width="0.5" stroke-dasharray="2,3"/>
+            <polyline points="0,58 40,52 80,48 120,42 160,36 200,30 240,24 280,18 320,12"
+              fill="none" stroke="#2f6fed" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="0" cy="58" r="3" fill="#2f6fed" stroke="white" stroke-width="1.5"/>
+            <circle cx="80" cy="48" r="3" fill="#2f6fed" stroke="white" stroke-width="1.5"/>
+            <circle cx="160" cy="36" r="3" fill="#2f6fed" stroke="white" stroke-width="1.5"/>
+            <circle cx="240" cy="24" r="3" fill="#2f6fed" stroke="white" stroke-width="1.5"/>
+            <circle cx="320" cy="12" r="3" fill="#2f6fed" stroke="white" stroke-width="1.5"/>
+          </svg>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- PRICING -->
-<section class="pricing" id="pricing">
-  <div class="container">
-    <div class="section-head reveal">
-      <h2>Free is great for one protocol.</h2>
-      <p>Upgrade to Pro when you're running more.</p>
-    </div>
-
-    <div class="price-grid">
-      <div class="price-card reveal">
-        <h3>Free</h3>
-        <div class="price-tag">$0</div>
-        <div class="price-sub">No trial — just use it.</div>
-        <ul class="price-features">
-          <li>One active protocol</li>
-          <li>One vial</li>
-          <li>Full peptide library</li>
-          <li>Reminders + Apple Health</li>
-        </ul>
-      </div>
-
-      <div class="price-card featured reveal delay-2">
-        <h3>Pro</h3>
-        <div class="price-tag">$4.17<span>/mo</span></div>
-        <div class="price-sub">$49.99 billed yearly · or $7.99/mo</div>
-        <ul class="price-features">
-          <li>Unlimited protocols</li>
-          <li>Unlimited vials</li>
-          <li>AI routine builder + insights</li>
-          <li>Custom peptides</li>
-          <li>Export your data</li>
-        </ul>
-      </div>
-    </div>
+<!-- FINAL CTA -->
+<div class="final-cta reveal">
+  <h2>Start your first protocol today.</h2>
+  <p>Two taps to log. Reminders that work offline. A library that doesn't pretend to know you better than you know you.</p>
+  <div class="download-row">
+    <a class="badge" href="#">
+      <span class="ico">
+        <svg viewBox="0 0 384 512" fill="currentColor" aria-hidden="true">
+          <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7-58.5 0-117.6 41.6-117.6 130.8 0 26.4 4.8 53.7 14.5 81.7 12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-89.1-59.3-90zM263.4 105.5c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/>
+        </svg>
+      </span>
+      <span>
+        <span class="small">Download on the</span>
+        <span class="big">App Store</span>
+      </span>
+    </a>
+    <a class="badge" href="#">
+      <span class="ico">
+        <svg viewBox="0 0 512 512" aria-hidden="true">
+          <path fill="#34a853" d="M325.3 234.3 104.6 13l280.8 161.2-60.1 60.1z"/>
+          <path fill="#fbbc04" d="m104.6 13 220.7 221.3-60.1 60.1L104.6 13z"/>
+          <path fill="#4285f4" d="M325.3 277.7 104.6 499 385.4 337.8l-60.1-60.1z"/>
+          <path fill="#ea4335" d="M104.6 499 325.3 277.7l60.1 60.1L104.6 499z"/>
+          <path fill="#1976d2" d="M104.6 13 80 38.6V473.4L104.6 499 325.3 277.7 265.2 217.6z"/>
+        </svg>
+      </span>
+      <span>
+        <span class="small">GET IT ON</span>
+        <span class="big">Google Play</span>
+      </span>
+    </a>
   </div>
-</section>
+</div>
 
 <footer>
   <div class="container">
-    <div style="margin-bottom: 12px">
+    <div>
       <a href="/privacy">Privacy</a>·
       <a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/">Terms</a>·
       <a href="mailto:hello@peptly.ai">Contact</a>
     </div>
-    Peptly is a personal log — not a doctor. We don't diagnose, prescribe, or recommend doses.<br />
-    Talk to a clinician about anything you put in your body.<br /><br />
-    © 2026 Peptly
+    <div class="disclaimer">
+      Peptly is a personal log — not a doctor. We don't diagnose, prescribe, or recommend doses.<br />
+      Talk to a clinician about anything you put in your body.<br /><br />
+      © 2026 Peptly
+    </div>
   </div>
 </footer>
 
 <script>
-  // Reveal on scroll. Trigger once, then unobserve so the element doesn't
-  // re-animate as it leaves and re-enters the viewport.
   const io = new IntersectionObserver(
     (entries) => {
       for (const entry of entries) {
@@ -856,38 +1113,6 @@
     { threshold: 0.15, rootMargin: '0px 0px -60px 0px' }
   );
   document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
-
-  // Stagger calendar day pop-ins after the calendar phone reveals.
-  const calPhone = document.querySelector('.screens-row > .reveal:first-child');
-  if (calPhone) {
-    const days = calPhone.querySelectorAll('.cal-day');
-    const dayObserver = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            days.forEach((d, i) => {
-              d.style.animationDelay = `${i * 18}ms`;
-            });
-            dayObserver.disconnect();
-          }
-        }
-      },
-      { threshold: 0.3 }
-    );
-    dayObserver.observe(calPhone);
-  }
-
-  // Nav drops a subtle shadow once you scroll past the hero.
-  const nav = document.querySelector('nav');
-  const onScroll = () => {
-    if (window.scrollY > 24) {
-      nav.style.boxShadow = '0 4px 20px -10px rgba(15, 23, 42, 0.08)';
-    } else {
-      nav.style.boxShadow = 'none';
-    }
-  };
-  window.addEventListener('scroll', onScroll, { passive: true });
-  onScroll();
 </script>
 
 </body>
