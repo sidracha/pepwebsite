@@ -3,41 +3,43 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Peptly — Track every dose with just a tap</title>
-<meta name="description" content="Meet Peptly, the personal log for peptide protocols. Track every dose, vial, and side effect with reminders, charts, and AI insights." />
+<title>Pepty — Track every dose with just a tap</title>
+<meta name="description" content="A clean log for peptide protocols. Track doses, vials, blends, and side effects on your phone — never on a server." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #ffffff;
-    --bg-alt: #f0f6ff;
+    --bg-alt: #f8f9fb;
     --surface: #ffffff;
-    --surface-alt: #f3f4f8;
-    --border: #dde7f5;
-    --text: #0b1530;
-    --text-dim: #64748b;
-    --text-faint: #94a3b8;
-    --accent: #2f6fed;
-    --accent-soft: #dbe7ff;
-    --accent-glow: rgba(47, 111, 237, 0.15);
-    --accent-deep: #1d4ed8;
-    --warn: #d97706;
-    --danger: #dc2626;
+    --surface-alt: #f4f5f7;
+    --border: #e6e8ec;
+    --text: #111418;
+    --text-dim: #5f6773;
+    --text-faint: #9097a3;
+    --accent: #1e4fd8;
+    --accent-soft: #e8edff;
+    --accent-glow: rgba(30, 79, 216, 0.12);
+    --accent-deep: #163fa8;
+    --warn: #b45309;
+    --danger: #b91c1c;
     --on-accent: #ffffff;
-    --flame-bg: #2a1f10;
-    --flame-fg: #fde68a;
-    --flame: #f59e0b;
-    --nav-bg: #0d1024;
-    --nav-fg: #e8e9ed;
+    --nav-fg: #111418;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html { scroll-behavior: smooth; }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif;
     background: var(--bg);
     color: var(--text);
-    line-height: 1.5;
+    line-height: 1.55;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
     overflow-x: hidden;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   }
 
   .container { max-width: 1240px; margin: 0 auto; padding: 0 32px; }
@@ -50,16 +52,16 @@
   }
   .nav-logo {
     display: flex; align-items: center; gap: 10px;
-    font-weight: 800; font-size: 22px; letter-spacing: -0.5px;
+    font-weight: 700; font-size: 19px; letter-spacing: -0.6px;
     color: var(--text); text-decoration: none;
     flex-shrink: 0;
   }
   .nav-logo-mark {
-    width: 36px; height: 36px; border-radius: 10px;
-    background: linear-gradient(135deg, var(--accent), #5191ff);
+    width: 30px; height: 30px; border-radius: 8px;
+    background: var(--text);
     display: grid; place-items: center; color: white;
-    font-size: 18px; font-weight: 800;
-    box-shadow: 0 6px 16px -6px var(--accent-glow);
+    font-size: 14px; font-weight: 700;
+    letter-spacing: -0.5px;
   }
   .nav-links {
     display: flex; gap: 30px;
@@ -111,46 +113,40 @@
     z-index: -1; pointer-events: none;
   }
 
-  /* Left column */
-  .rating-pill {
-    display: inline-flex; align-items: center; gap: 12px;
-    padding: 8px 16px 8px 8px;
-    background: white; border: 1px solid var(--border);
-    border-radius: 100px;
-    box-shadow: 0 6px 18px -10px rgba(15, 23, 42, 0.15);
-    margin-bottom: 28px;
-    font-size: 14px;
+  /* Hero left column */
+  .pretitle {
+    display: inline-block;
+    color: var(--accent);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+    margin-bottom: 20px;
   }
-  .rating-pill .avatars { display: flex; }
-  .rating-pill .avatar {
-    width: 28px; height: 28px; border-radius: 50%;
-    border: 2px solid white;
-    margin-left: -10px;
-    display: grid; place-items: center;
-    color: white; font-weight: 700; font-size: 11px;
+  .pretitle::before {
+    content: '';
+    display: inline-block;
+    width: 18px; height: 1px;
+    background: var(--accent);
+    vertical-align: middle;
+    margin-right: 10px;
   }
-  .rating-pill .avatar:first-child { margin-left: 0; }
-  .avatar.a1 { background: linear-gradient(135deg, #f59e0b, #fb923c); }
-  .avatar.a2 { background: linear-gradient(135deg, #10b981, #34d399); }
-  .avatar.a3 { background: linear-gradient(135deg, #6366f1, #818cf8); }
-  .rating-pill .star { color: #f59e0b; }
-  .rating-pill strong { color: var(--text); font-weight: 700; }
 
   h1 {
-    font-size: clamp(40px, 4.6vw, 64px);
-    font-weight: 800;
-    letter-spacing: -2.2px;
+    font-size: clamp(38px, 4.4vw, 60px);
+    font-weight: 700;
+    letter-spacing: -2px;
     line-height: 1.05;
     color: var(--text);
     margin-bottom: 22px;
   }
-  h1 em { font-style: normal; color: var(--accent); }
+  h1 em { font-style: normal; color: var(--accent); font-weight: 700; }
 
   .lead {
-    font-size: clamp(15px, 1.2vw, 17px);
+    font-size: clamp(15px, 1.15vw, 17px);
     color: var(--text-dim);
     max-width: 480px;
     margin-bottom: 32px;
+    line-height: 1.6;
   }
 
   .download-row { display: flex; gap: 12px; flex-wrap: wrap; }
@@ -162,22 +158,22 @@
   /* ───────── Phone column ───────── */
   .phone-stage {
     position: relative;
-    height: 620px;
+    height: 680px;
     display: flex; align-items: center; justify-content: center;
   }
   .phone-pair {
     position: relative;
     display: flex;
-    width: 540px;
+    width: 720px;
     height: 100%;
     align-items: center;
   }
   .phone {
-    width: 250px;
+    width: 280px;
     aspect-ratio: 9 / 19.5;
-    background: var(--bg);
-    border: 10px solid #0d1024;
-    border-radius: 42px;
+    background: #f7f7f0;
+    border: 11px solid #0d1024;
+    border-radius: 46px;
     overflow: hidden;
     box-shadow:
       0 40px 80px -20px rgba(15, 23, 42, 0.35),
@@ -186,27 +182,30 @@
   }
   .phone::before {
     content: '';
-    position: absolute; top: 8px; left: 50%;
+    position: absolute; top: 9px; left: 50%;
     transform: translateX(-50%);
-    width: 86px; height: 24px;
-    background: #0d1024; border-radius: 13px;
+    width: 96px; height: 26px;
+    background: #0d1024; border-radius: 14px;
     z-index: 5;
   }
   .phone-screen {
-    height: 100%; padding: 46px 11px 11px; overflow: hidden;
-    display: flex; flex-direction: column; gap: 10px;
+    height: 100%; padding: 40px 0 0; overflow: hidden;
+    display: flex; flex-direction: column;
+    background: #f7f7f0;
   }
+  /* Used by the BACK phone (Log Injection) — keeps padded layout */
+  .phone-screen.padded { padding: 46px 11px 11px; gap: 10px; }
 
   /* Front phone (Today) — left, on top */
   .phone-front {
     left: 0; top: 50%;
-    transform: translateY(-52%) rotate(-4deg);
+    transform: translate(-40px, -52%) rotate(-4deg);
     z-index: 2;
   }
-  /* Back phone (Progress) — right, slightly higher */
+  /* Back phone (Log Injection) — right, slightly higher */
   .phone-back {
     right: 0; top: 50%;
-    transform: translateY(-48%) rotate(4deg);
+    transform: translate(40px, -48%) rotate(4deg);
     z-index: 1;
   }
 
@@ -233,44 +232,211 @@
   /* Decorative arrow squiggle between callouts and phones */
   .squiggle { position: absolute; pointer-events: none; z-index: 3; }
 
-  /* ───────── App-internal styling (used inside phones) ───────── */
-  .app-header { display: flex; align-items: center; gap: 10px; }
-  .pepty-mascot {
-    width: 38px; height: 38px; border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent), #5191ff);
-    display: grid; place-items: center; font-size: 18px;
-    flex-shrink: 0;
+  /* ───────── Front phone — exact Today screen ───────── */
+  .ios-status-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 16px;
+    height: 14px;
+    margin-top: -32px;
+    margin-bottom: 12px;
+    font-size: 11px; font-weight: 600; color: var(--text);
   }
-  .header-text .small { color: var(--text-dim); font-size: 10px; }
-  .header-text .big {
-    font-size: 20px; font-weight: 800; letter-spacing: -0.8px; margin-top: 1px;
+  .ios-icons { display: flex; align-items: center; gap: 4px; color: var(--text); }
+  .ios-icons svg { width: 14px; height: 10px; }
+
+  .today-header {
+    text-align: center;
+    font-size: 17px; font-weight: 700; color: var(--text);
+    padding: 4px 0 12px;
+    border-bottom: 1px solid #e5e7eb;
   }
 
-  .streak-card {
-    background: var(--flame-bg);
-    border: 1px solid #f59e0b33;
-    border-radius: 12px;
-    padding: 12px;
+  .page-content {
+    flex: 1; overflow: hidden;
+    padding: 16px 16px 0;
+    display: flex; flex-direction: column; gap: 18px;
+  }
+
+  /* Hero row inside the phone */
+  .pf-hero-row {
     display: flex; align-items: center; gap: 10px;
   }
-  .flame-circle {
-    width: 40px; height: 40px; border-radius: 50%;
-    background: #f59e0b22;
-    display: grid; place-items: center; font-size: 20px;
+  .vial-mascot {
+    width: 56px; height: 64px;
     flex-shrink: 0;
   }
-  .streak-text .num {
-    font-size: 24px; font-weight: 800; letter-spacing: -0.6px; line-height: 1;
-    background: linear-gradient(90deg, #fde68a, #fb923c, #fde68a);
-    background-size: 200% 100%;
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: shimmer 4s linear infinite;
+  .vial-mascot svg { width: 100%; height: 100%; display: block; }
+  .pf-greet { flex: 1; min-width: 0; }
+  .pf-date {
+    color: var(--text-dim); font-size: 11px; font-weight: 500;
+    margin-bottom: 2px;
   }
-  .streak-text .num span { font-size: 11px; font-weight: 600; opacity: 0.9; margin-left: 4px; -webkit-text-fill-color: var(--flame-fg); background: none; }
-  .streak-text .sub { font-size: 10px; font-weight: 600; color: var(--flame-fg); opacity: 0.8; margin-top: 4px; }
-  @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+  .pf-greet-title {
+    font-size: 21px; font-weight: 800; letter-spacing: -0.7px;
+    line-height: 1.05; color: var(--text);
+  }
+  .pf-settings {
+    width: 32px; height: 32px; border-radius: 50%;
+    border: 1px solid #e5e7eb;
+    display: grid; place-items: center;
+    color: var(--text-dim);
+    flex-shrink: 0;
+  }
+  .pf-settings svg { width: 15px; height: 15px; }
+
+  /* Log injection card */
+  .pf-log-cta {
+    background: var(--accent);
+    border-radius: 14px;
+    padding: 13px 14px;
+    display: flex; align-items: center; gap: 12px;
+    color: white;
+  }
+  .pf-log-icon {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: white; color: var(--accent);
+    display: grid; place-items: center;
+    font-size: 21px; font-weight: 600; line-height: 1;
+    flex-shrink: 0;
+  }
+  .pf-log-text { flex: 1; }
+  .pf-log-title { font-size: 15px; font-weight: 700; line-height: 1.2; }
+  .pf-log-sub { font-size: 11px; opacity: 0.85; margin-top: 2px; }
+  .pf-log-chev { font-size: 18px; opacity: 0.85; }
+
+  /* Action tiles */
+  .pf-tile-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .pf-tile {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 12px 4px;
+    display: flex; flex-direction: column; align-items: center;
+    gap: 6px;
+  }
+  .pf-tile-circle {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: #e8edff;
+    color: var(--accent);
+    display: grid; place-items: center;
+  }
+  .pf-tile-circle svg { width: 16px; height: 16px; }
+  .pf-tile-label {
+    font-size: 11px; font-weight: 600; color: var(--text);
+    text-align: center; line-height: 1.15;
+  }
+
+  /* Section row (UPCOMING, RECENT DOSES) */
+  .pf-section-row {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .pf-section-label {
+    display: inline-flex; align-items: center; gap: 5px;
+    color: var(--text-dim);
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.6px; text-transform: uppercase;
+  }
+  .pf-section-label svg { width: 13px; height: 13px; color: var(--accent); }
+  .pf-section-actions {
+    display: flex; gap: 12px;
+    font-size: 12px;
+  }
+  .pf-section-actions .all { color: var(--text-dim); }
+  .pf-section-actions .new { color: var(--accent); font-weight: 600; }
+
+  /* Bucket labels (TODAY / THIS WEEK) */
+  .pf-bucket {
+    color: var(--text-faint);
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.6px; text-transform: uppercase;
+    margin: 4px 0 6px;
+  }
+
+  /* Dose / upcoming card */
+  .pf-dose-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 10px 12px 10px 0;
+    display: flex; align-items: stretch; gap: 0;
+    margin-bottom: 8px;
+    overflow: hidden;
+  }
+  .pf-dose-bar {
+    width: 4px; background: var(--accent);
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+  .pf-dose-content {
+    flex: 1; min-width: 0;
+    padding-left: 10px;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .pf-dose-top {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .pf-dose-info { flex: 1; min-width: 0; }
+  .pf-dose-name { font-size: 14px; font-weight: 700; color: var(--text); }
+  .pf-dose-meta { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+  .pf-dose-warn {
+    font-size: 11px; color: var(--warn); font-weight: 600;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .pf-dose-actions { display: flex; gap: 5px; flex-shrink: 0; }
+  .pf-dose-pill {
+    padding: 5px 11px; border-radius: 100px;
+    font-size: 11px; font-weight: 700;
+    border: 1px solid transparent;
+  }
+  .pf-dose-pill.took { background: var(--accent); color: white; }
+  .pf-dose-pill.skip { background: var(--surface-alt); color: var(--text-dim); border-color: #e5e7eb; }
+
+  /* Empty state card */
+  .pf-empty {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 16px;
+    text-align: center;
+  }
+  .pf-empty .vial-mascot {
+    width: 50px; height: 58px;
+    margin: 0 auto 8px;
+  }
+  .pf-empty-title {
+    font-size: 13px; font-weight: 700; color: var(--text);
+    line-height: 1.25; margin-bottom: 4px;
+  }
+  .pf-empty-sub {
+    font-size: 10px; color: var(--text-dim);
+    line-height: 1.4; margin-bottom: 10px;
+  }
+  .pf-empty-btn {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 9px 0;
+    font-size: 12px; font-weight: 700; color: var(--text);
+  }
+
+  /* Tab bar */
+  .pf-tab-bar {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    background: white;
+    border-top: 1px solid #e5e7eb;
+    padding: 6px 0 10px;
+    margin-top: auto;
+  }
+  .pf-tab {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 2px;
+    color: var(--text-faint);
+    font-size: 9px; font-weight: 600;
+  }
+  .pf-tab svg { width: 18px; height: 18px; }
+  .pf-tab.active { color: var(--accent); }
+
 
   .log-cta {
     background: var(--accent); border-radius: 12px; padding: 13px;
@@ -501,12 +667,13 @@
   }
   .health-card > * { position: relative; z-index: 1; }
   .health-card .icon {
-    width: 48px; height: 48px; border-radius: 14px;
+    width: 44px; height: 44px; border-radius: 12px;
     background: var(--accent-soft);
     color: var(--accent);
     display: grid; place-items: center;
-    font-size: 22px; margin-bottom: 18px;
+    margin-bottom: 18px;
   }
+  .health-card .icon svg { width: 22px; height: 22px; }
   .health-card h3 { font-size: 22px; letter-spacing: -0.6px; font-weight: 800; margin-bottom: 8px; }
   .health-card p { color: var(--text-dim); font-size: 15px; margin-bottom: 22px; }
 
@@ -533,36 +700,26 @@
   }
   .stat-cell { text-align: center; }
   .stat-cell + .stat-cell { border-left: 1px solid var(--border); }
-  .stat-cell .num { font-size: 24px; font-weight: 800; letter-spacing: -0.6px; }
-  .stat-cell .num.flame { color: #f97316; }
-  .stat-cell .num.green { color: #10b981; }
+  .stat-cell .num { font-size: 24px; font-weight: 700; letter-spacing: -0.6px; }
+  .stat-cell .num.green { color: #047857; }
   .stat-cell .lbl { font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; margin-top: 2px; }
 
   /* ───────── Final CTA ───────── */
   .final-cta {
-    background: linear-gradient(135deg, var(--accent-deep), var(--accent));
-    color: white;
-    border-radius: 32px;
-    padding: 80px 40px;
+    background: var(--bg-alt);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    padding: 96px 32px;
     text-align: center;
-    margin: 0 32px 32px;
-    position: relative; overflow: hidden;
+    margin: 0;
   }
-  .final-cta::before, .final-cta::after {
-    content: ''; position: absolute; pointer-events: none;
-    background: radial-gradient(circle, rgba(255,255,255,0.15), transparent 60%);
-    filter: blur(40px);
-  }
-  .final-cta::before { width: 360px; height: 360px; top: -100px; left: -80px; }
-  .final-cta::after  { width: 360px; height: 360px; bottom: -100px; right: -80px; }
-  .final-cta > * { position: relative; z-index: 1; }
   .final-cta h2 {
-    font-size: clamp(32px, 4vw, 48px); letter-spacing: -1.6px;
-    font-weight: 800; margin-bottom: 14px;
+    font-size: clamp(30px, 3.6vw, 44px); letter-spacing: -1.4px;
+    font-weight: 700; margin-bottom: 14px;
   }
-  .final-cta p { color: rgba(255,255,255,0.85); font-size: 17px; max-width: 520px; margin: 0 auto 30px; }
+  .final-cta p { color: var(--text-dim); font-size: 16px; max-width: 480px; margin: 0 auto 28px; }
   .final-cta .download-row { justify-content: center; }
-  .final-cta .badge { background: white; color: var(--text); }
 
   /* ───────── Footer ───────── */
   footer {
@@ -590,13 +747,8 @@
     .hero { grid-template-columns: 1fr; text-align: center; padding-bottom: 32px; }
     .hero .lead { margin-left: auto; margin-right: auto; }
     .download-row { justify-content: center; }
-    .rating-pill { margin-left: auto; margin-right: auto; }
-    .phone-stage { height: 540px; }
-    .phone-pair { width: 480px; }
-    .callout-streak  { left: -10px; }
-    .callout-dose    { left: -10px; }
-    .callout-weight  { right: -10px; }
-    .callout-protocols { right: -10px; }
+    .phone-stage { height: 660px; }
+    .phone-pair { width: 680px; }
   }
   @media (max-width: 720px) {
     .nav-links { display: none; }
@@ -604,17 +756,15 @@
     .nav-stores .badge .big { font-size: 13px; }
     h1 { font-size: 36px; letter-spacing: -1.4px; }
     .health-grid { grid-template-columns: 1fr; }
-    .phone-stage { height: 460px; }
-    .phone-pair { width: 360px; }
-    .phone { width: 200px; border-width: 8px; }
-    .callout { font-size: 11px; padding: 5px 11px; }
+    .phone-stage { height: 480px; }
+    .phone-pair { width: 480px; }
+    .phone { width: 210px; border-width: 8px; }
     .vial-grid { gap: 12px; }
   }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; }
     .reveal { opacity: 1; transform: none; }
     .trend-chart .trend-line { stroke-dashoffset: 0 !important; }
-    .streak-text .num { -webkit-text-fill-color: #fde68a; background: none; }
   }
 </style>
 </head>
@@ -626,7 +776,7 @@
   <nav>
     <a href="#" class="nav-logo">
       <div class="nav-logo-mark">P</div>
-      Peptly
+      Pepty
     </a>
     <div class="nav-links">
       <a href="#">Home</a>
@@ -670,21 +820,12 @@
 
     <!-- Left: text -->
     <div>
-      <div class="rating-pill">
-        <div class="avatars">
-          <div class="avatar a1">M</div>
-          <div class="avatar a2">J</div>
-          <div class="avatar a3">A</div>
-        </div>
-        <div>
-          Loved by protocol runners with <span class="star">★</span> <strong>4.9</strong> rating
-        </div>
-      </div>
+      <span class="pretitle">A peptide log for serious protocols</span>
 
-      <h1>Meet Peptly<br /><em>Track every dose</em><br />with just a tap.</h1>
+      <h1>Stop tracking peptides<br />in a <em>spreadsheet.</em></h1>
       <p class="lead">
-        Meet Peptly, the AI-powered log for peptide protocols. Snap a vial, scan a batch, or describe your blend
-        and get instant dose math, reminders, and progress tracking.
+        Log doses in two taps. Track vials, blends, side effects, and measurements.
+        Reminders, dose math, and Apple Health sync — on your phone, never on a server.
       </p>
       <div class="download-row">
         <a class="badge" href="#">
@@ -720,59 +861,216 @@
     <div class="phone-stage">
       <div class="phone-pair">
 
-        <!-- FRONT phone: Today -->
+        <!-- FRONT phone: Today (matches the actual app screen) -->
         <div class="phone phone-front">
           <div class="phone-screen">
-            <div class="app-header">
-              <div class="pepty-mascot">👋</div>
-              <div class="header-text">
-                <div class="small">Tuesday, May 7</div>
-                <div class="big">Mornin'</div>
+
+            <!-- iOS status bar -->
+            <div class="ios-status-bar">
+              <span>12:13</span>
+              <span></span>
+              <div class="ios-icons">
+                <svg viewBox="0 0 16 10" fill="currentColor"><rect x="0" y="6" width="2.4" height="3" rx="0.4"/><rect x="3.4" y="4" width="2.4" height="5" rx="0.4"/><rect x="6.8" y="2" width="2.4" height="7" rx="0.4"/><rect x="10.2" y="0" width="2.4" height="9" rx="0.4"/></svg>
+                <svg viewBox="0 0 16 10" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"><path d="M2 5 Q 8 -1, 14 5"/><path d="M4 7 Q 8 3, 12 7"/><circle cx="8" cy="9" r="0.6" fill="currentColor"/></svg>
+                <svg viewBox="0 0 24 12" fill="none" stroke="currentColor" stroke-width="1"><rect x="1" y="1" width="20" height="10" rx="2"/><rect x="3" y="3" width="16" height="6" rx="1" fill="currentColor"/><rect x="22" y="4" width="1.5" height="4" rx="0.5" fill="currentColor"/></svg>
               </div>
             </div>
 
-            <div class="streak-card">
-              <div class="flame-circle">🔥</div>
-              <div class="streak-text">
-                <div class="num">12<span>days</span></div>
-                <div class="sub">Locked in · 0 missed</div>
-              </div>
-            </div>
+            <!-- Today header -->
+            <div class="today-header">Today</div>
 
-            <div class="log-cta">
-              <div class="ico">＋</div>
+            <div class="page-content">
+
+              <!-- Hero row -->
+              <div class="pf-hero-row">
+                <div class="vial-mascot">
+                  <svg viewBox="0 0 80 100" fill="none">
+                    <!-- cap -->
+                    <rect x="26" y="0" width="28" height="6" rx="2" fill="#9ca3af"/>
+                    <rect x="26" y="0" width="28" height="2" fill="#cbd2dc"/>
+                    <!-- collar -->
+                    <rect x="22" y="6" width="36" height="6" rx="1" fill="#cbd2dc"/>
+                    <rect x="22" y="10" width="36" height="2" fill="#9ca3af"/>
+                    <!-- body -->
+                    <rect x="14" y="14" width="52" height="80" rx="14" fill="#eaf3fc" stroke="#bfd6ee" stroke-width="2"/>
+                    <!-- liquid -->
+                    <path d="M16 60 L64 60 L64 80 Q64 92 56 92 L24 92 Q16 92 16 80 Z" fill="#c7dbef" opacity="0.85"/>
+                    <!-- arms -->
+                    <ellipse cx="9" cy="56" rx="6" ry="3.5" fill="#cbd2dc"/>
+                    <ellipse cx="71" cy="56" rx="6" ry="3.5" fill="#cbd2dc"/>
+                    <circle cx="5" cy="56" r="3" fill="#bfd6ee"/>
+                    <circle cx="75" cy="56" r="3" fill="#bfd6ee"/>
+                    <!-- eyes -->
+                    <ellipse cx="30" cy="48" rx="3.2" ry="3.6" fill="#0f172a"/>
+                    <ellipse cx="50" cy="48" rx="3.2" ry="3.6" fill="#0f172a"/>
+                    <circle cx="29" cy="46" r="0.9" fill="white"/>
+                    <circle cx="49" cy="46" r="0.9" fill="white"/>
+                    <!-- mouth -->
+                    <path d="M35 56 Q40 60 45 56" stroke="#0f172a" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+                    <!-- blush -->
+                    <ellipse cx="22" cy="54" rx="2.2" ry="1.4" fill="#fbcfe8" opacity="0.55"/>
+                    <ellipse cx="58" cy="54" rx="2.2" ry="1.4" fill="#fbcfe8" opacity="0.55"/>
+                  </svg>
+                </div>
+                <div class="pf-greet">
+                  <div class="pf-date">Saturday, May 9</div>
+                  <div class="pf-greet-title">Up late?</div>
+                </div>
+                <div class="pf-settings">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                  </svg>
+                </div>
+              </div>
+
+              <!-- Log injection -->
+              <div class="pf-log-cta">
+                <div class="pf-log-icon">+</div>
+                <div class="pf-log-text">
+                  <div class="pf-log-title">Log an injection</div>
+                  <div class="pf-log-sub">Tap the second you take it</div>
+                </div>
+                <div class="pf-log-chev">›</div>
+              </div>
+
+              <!-- Action tiles -->
+              <div class="pf-tile-row">
+                <div class="pf-tile">
+                  <div class="pf-tile-circle">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="4" y="2" width="16" height="20" rx="2"/>
+                      <line x1="8" y1="6" x2="16" y2="6"/>
+                      <line x1="8" y1="10" x2="10" y2="10"/>
+                      <line x1="13" y1="10" x2="14" y2="10"/>
+                      <line x1="16" y1="10" x2="16" y2="10"/>
+                      <line x1="8" y1="14" x2="10" y2="14"/>
+                      <line x1="13" y1="14" x2="14" y2="14"/>
+                      <line x1="16" y1="14" x2="16" y2="14"/>
+                      <line x1="8" y1="18" x2="10" y2="18"/>
+                      <line x1="13" y1="18" x2="14" y2="18"/>
+                    </svg>
+                  </div>
+                  <div class="pf-tile-label">Calculator</div>
+                </div>
+                <div class="pf-tile">
+                  <div class="pf-tile-circle">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                      <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                      <line x1="12" y1="22.08" x2="12" y2="12"/>
+                    </svg>
+                  </div>
+                  <div class="pf-tile-label">My Vials</div>
+                </div>
+                <div class="pf-tile">
+                  <div class="pf-tile-circle">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="8" y1="6" x2="21" y2="6"/>
+                      <line x1="8" y1="12" x2="21" y2="12"/>
+                      <line x1="8" y1="18" x2="21" y2="18"/>
+                      <line x1="3" y1="6" x2="3.01" y2="6"/>
+                      <line x1="3" y1="12" x2="3.01" y2="12"/>
+                      <line x1="3" y1="18" x2="3.01" y2="18"/>
+                    </svg>
+                  </div>
+                  <div class="pf-tile-label">My Protocols</div>
+                </div>
+              </div>
+
+              <!-- UPCOMING section -->
               <div>
-                <div class="title">Log an injection</div>
-                <div class="sub">Tap the second you take it</div>
-              </div>
-            </div>
-
-            <div>
-              <div class="section-label-mini" style="color:#d97706">Today</div>
-              <div class="upcoming-card">
-                <div class="upcoming-row">
-                  <div class="pep-dot" style="background:#10b981"></div>
-                  <div style="flex:1">
-                    <div class="pep-name">Tirzepatide</div>
-                    <div class="pep-meta">5 mg · in 32 min</div>
+                <div class="pf-section-row">
+                  <div class="pf-section-label">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="10"/>
+                      <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                    Upcoming
+                  </div>
+                  <div class="pf-section-actions">
+                    <span class="all">All →</span>
+                    <span class="new">+ New</span>
                   </div>
                 </div>
-                <div class="pep-actions">
-                  <div class="pep-pill pep-took">I took it</div>
-                  <div class="pep-pill pep-skip">Skip</div>
+
+                <div class="pf-bucket">Today</div>
+                <div class="pf-dose-card">
+                  <div class="pf-dose-bar"></div>
+                  <div class="pf-dose-content">
+                    <div class="pf-dose-top">
+                      <div class="pf-dose-info">
+                        <div class="pf-dose-name">BPC-157</div>
+                        <div class="pf-dose-meta">250 mcg · Today, 9:00 AM</div>
+                      </div>
+                      <div class="pf-dose-actions">
+                        <div class="pf-dose-pill took">Took</div>
+                        <div class="pf-dose-pill skip">Skip</div>
+                      </div>
+                    </div>
+                    <div class="pf-dose-warn">~0 doses left in current vial</div>
+                  </div>
+                </div>
+                <div class="pf-dose-card">
+                  <div class="pf-dose-bar"></div>
+                  <div class="pf-dose-content">
+                    <div class="pf-dose-top">
+                      <div class="pf-dose-info">
+                        <div class="pf-dose-name">GHK-Cu</div>
+                        <div class="pf-dose-meta">1 mg · Today, 9:00 PM</div>
+                      </div>
+                      <div class="pf-dose-actions">
+                        <div class="pf-dose-pill took">Took</div>
+                        <div class="pf-dose-pill skip">Skip</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="pf-bucket">This week</div>
+                <div class="pf-dose-card">
+                  <div class="pf-dose-bar"></div>
+                  <div class="pf-dose-content">
+                    <div class="pf-dose-top">
+                      <div class="pf-dose-info">
+                        <div class="pf-dose-name">Tirzepatide</div>
+                        <div class="pf-dose-meta">5 mg · May 14, 8:00 AM</div>
+                      </div>
+                    </div>
+                    <div class="pf-dose-warn">~0 doses left in current vial</div>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div>
-              <div class="section-label-mini" style="color:#d97706">⚠ Vial alerts</div>
-              <div class="alert-card">
-                <div class="alert-bar"></div>
-                <div style="flex:1">
-                  <div class="alert-name">GHK-Cu · 50 mg</div>
-                  <div class="alert-sub">Expires in 3d · ~2 doses left</div>
-                </div>
-                <div class="alert-tag">LOW</div>
+            <!-- Tab bar -->
+            <div class="pf-tab-bar">
+              <div class="pf-tab active">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l9 8h-3v9h-4v-6h-4v6H6v-9H3z"/></svg>
+                <span>Today</span>
+              </div>
+              <div class="pf-tab">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                  <line x1="16" y1="2" x2="16" y2="6"/>
+                  <line x1="8" y1="2" x2="8" y2="6"/>
+                  <line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+                <span>Calendar</span>
+              </div>
+              <div class="pf-tab">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M9 3h6v4l4 8a4 4 0 0 1-4 5h-6a4 4 0 0 1-4-5l4-8z"/>
+                  <line x1="9" y1="3" x2="15" y2="3"/>
+                </svg>
+                <span>Library</span>
+              </div>
+              <div class="pf-tab">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                  <polyline points="17 6 23 6 23 12"/>
+                </svg>
+                <span>Progress</span>
               </div>
             </div>
           </div>
@@ -780,7 +1078,7 @@
 
         <!-- BACK phone: Log Injection -->
         <div class="phone phone-back">
-          <div class="phone-screen">
+          <div class="phone-screen padded">
             <div class="log-header">
               <div class="log-back">←</div>
               <div class="log-title">Log Injection</div>
@@ -857,9 +1155,9 @@
 <section class="vials-section" id="vials">
   <div class="container">
     <div class="section-head reveal">
-      <div class="eyebrow">Peptide Library</div>
-      <h2>20+ peptides, ready to log</h2>
-      <p>Every entry comes with reconstitution math, half-life, injection route, and reported side effects — no recommendations, just facts.</p>
+      <div class="eyebrow">Library</div>
+      <h2>Twenty peptides, the math built in.</h2>
+      <p>Reconstitution, half-life, injection route, and reported side effects for everything from Tirzepatide to GHK-Cu. Facts only — no recommendations.</p>
     </div>
 
     <div class="vial-grid">
@@ -973,15 +1271,20 @@
 <section class="health-section" id="health">
   <div class="container">
     <div class="section-head reveal">
-      <div class="eyebrow">Health Tracking</div>
-      <h2>The metrics that actually matter</h2>
-      <p>Weight, body fat, energy, focus, mood, sleep — pulled from Apple Health or logged in seconds. Peptly turns it into trends.</p>
+      <div class="eyebrow">Tracking</div>
+      <h2>What's actually changing.</h2>
+      <p>Weight, body fat, energy, focus, mood, sleep. Pull from Apple Health or log in seconds. Charts mark exactly when each protocol started.</p>
     </div>
 
     <div class="health-grid">
       <div class="health-card reveal">
         <div class="blob"></div>
-        <div class="icon">📊</div>
+        <div class="icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 3v18h18"/>
+            <path d="M7 16l4-7 4 4 4-9"/>
+          </svg>
+        </div>
         <h3>Weight & body composition</h3>
         <p>Two-way Apple Health sync. Charts mark exactly when you started each protocol so you can see what changed and when.</p>
         <div class="inline-chart">
@@ -1011,13 +1314,17 @@
 
       <div class="health-card reveal delay-1">
         <div class="blob"></div>
-        <div class="icon">💙</div>
+        <div class="icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 12h4l3 -8 4 16 3 -8h4"/>
+          </svg>
+        </div>
         <h3>Wellbeing & adherence</h3>
-        <p>Daily mood logs in 5 seconds — energy, focus, mood, sleep, pain. Watch the trends shift after each protocol starts.</p>
+        <p>Five-second daily logs — energy, focus, mood, sleep, pain. Watch the trends shift after each protocol starts.</p>
         <div class="stat-strip">
           <div class="stat-cell">
-            <div class="num flame">🔥 12</div>
-            <div class="lbl">Day streak</div>
+            <div class="num">14</div>
+            <div class="lbl">Doses (30d)</div>
           </div>
           <div class="stat-cell">
             <div class="num">96%</div>
@@ -1053,8 +1360,8 @@
 
 <!-- FINAL CTA -->
 <div class="final-cta reveal">
-  <h2>Start your first protocol today.</h2>
-  <p>Two taps to log. Reminders that work offline. A library that doesn't pretend to know you better than you know you.</p>
+  <h2>Get Pepty.</h2>
+  <p>Free for one protocol. Available on iPhone and Android.</p>
   <div class="download-row">
     <a class="badge" href="#">
       <span class="ico">
@@ -1090,12 +1397,12 @@
     <div>
       <a href="/privacy">Privacy</a>·
       <a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/">Terms</a>·
-      <a href="mailto:hello@peptly.ai">Contact</a>
+      <a href="mailto:hello@pepty.ai">Contact</a>
     </div>
     <div class="disclaimer">
-      Peptly is a personal log — not a doctor. We don't diagnose, prescribe, or recommend doses.<br />
+      Pepty is a personal log — not a doctor. We don't diagnose, prescribe, or recommend doses.<br />
       Talk to a clinician about anything you put in your body.<br /><br />
-      © 2026 Peptly
+      © 2026 Pepty
     </div>
   </div>
 </footer>
